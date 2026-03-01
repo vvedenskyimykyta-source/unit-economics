@@ -1,0 +1,2474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Economics Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F4F3F0;
+  --surface: #FFFFFF;
+  --surface2: #FAFAF8;
+  --border: #E8E6E1;
+  --border2: #D4D1C9;
+  --text: #1A1816;
+  --text2: #5C5954;
+  --text3: #8C8880;
+  --accent: #2563EB;
+  --green: #059669;
+  --green-bg: #ECFDF5;
+  --green-border: #A7F3D0;
+  --red: #DC2626;
+  --red-bg: #FEF2F2;
+  --red-border: #FECACA;
+  --amber: #D97706;
+  --amber-bg: #FFFBEB;
+  --amber-border: #FDE68A;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+  --display: 'Bricolage Grotesque', sans-serif;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  font-family: var(--sans);
+  color: var(--text);
+  line-height: 1.5;
+  padding: 40px 20px 80px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 900px; margin: 0 auto; }
+
+/* Header */
+.header {
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.header-left h1 {
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+.header-left p {
+  font-size: 13px;
+  color: var(--text2);
+  max-width: 550px;
+  line-height: 1.6;
+}
+.lang-toggle {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.lang-btn {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 5px;
+  color: var(--text3);
+  font-family: var(--sans);
+  transition: all 0.15s;
+}
+.lang-btn.active { background: var(--text); color: #fff; }
+
+/* Sections */
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.section-title {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text3);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-desc {
+  font-size: 11px;
+  color: var(--text3);
+  margin-bottom: 14px;
+  font-weight: 400;
+}
+.sens-sublabel {
+  font-size: 9px;
+  color: var(--text3);
+  margin-bottom: 8px;
+  font-weight: 400;
+}
+
+/* Grid */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+/* Fields */
+.field { margin-bottom: 12px; }
+.field:last-child { margin-bottom: 0; }
+.field-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+.field-value {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.field-value:hover { background: var(--surface2); }
+
+input[type=range] {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border2);
+  outline: none;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.15s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+input[type=number] {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.15s;
+}
+input[type=number]:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+.field-num label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text2);
+  margin-bottom: 6px;
+}
+
+/* Debug output */
+.debug {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-top: 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text2);
+}
+.debug-title {
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.debug-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+.debug-row:last-child { border-bottom: none; }
+.debug-row span:last-child { color: var(--text); font-weight: 600; }
+
+/* Channel Cards */
+.channel-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: relative;
+  transition: all 0.2s;
+}
+.channel-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.channel-card.web::before { background: linear-gradient(90deg, #0EA5E9, #38BDF8); }
+.channel-card.app::before { background: linear-gradient(90deg, #8B5CF6, #A78BFA); }
+.channel-card.disabled { opacity: 0.4; }
+.channel-card.disabled .channel-content { pointer-events: none; }
+
+.channel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.channel-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.channel-icon { font-size: 16px; }
+.channel-name {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+}
+.channel-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: var(--mono);
+}
+.channel-badge.web { background: #E0F2FE; color: #0369A1; }
+.channel-badge.app { background: #EDE9FE; color: #6D28D9; }
+
+/* Toggle */
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--border2);
+  border-radius: 10px;
+  transition: 0.2s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.toggle input:checked + .toggle-slider { background: var(--accent); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+.toggle-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+}
+.toggle-label.active { color: var(--text); }
+
+/* Upsell blocks */
+.upsell-block {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+.upsell-block.disabled { opacity: 0.4; }
+.upsell-block.disabled .upsell-list-header,
+.upsell-block.disabled #d0-list,
+.upsell-block.disabled #packs-list,
+.upsell-block.disabled .add-btn { pointer-events: none; }
+
+.upsell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.upsell-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+.upsell-list-header {
+  display: grid;
+  grid-template-columns: 30px 1fr 1fr 32px;
+  gap: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0 0 8px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.upsell-row {
+  display: grid;
+  grid-template-columns: 30px 1fr 1fr 32px;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 0;
+}
+.upsell-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text3);
+  text-align: center;
+}
+.upsell-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  outline: none;
+  transition: all 0.15s;
+}
+.upsell-input:focus { border-color: var(--accent); }
+.upsell-del {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: var(--red-bg);
+  color: var(--red);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.upsell-del:hover { background: #FECACA; }
+.add-btn {
+  width: 100%;
+  padding: 10px;
+  border: 1px dashed var(--border2);
+  background: transparent;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 10px;
+  font-family: var(--sans);
+}
+.add-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(37,99,235,0.03); }
+
+/* Results Header */
+.results-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 28px 0 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text3);
+}
+
+/* KPI Cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 14px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+.kpi-card.neutral::after { background: var(--border2); }
+.kpi-card.good::after { background: linear-gradient(90deg, #10B981, #34D399); }
+.kpi-card.warning::after { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+.kpi-card.bad::after { background: linear-gradient(90deg, #EF4444, #F87171); }
+.kpi-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 8px;
+}
+.kpi-value {
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.kpi-sub {
+  font-size: 10px;
+  color: var(--text3);
+}
+
+/* Forecast Grid */
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+.forecast-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  text-align: center;
+}
+.forecast-card.highlight {
+  background: var(--green-bg);
+  border-color: var(--green-border);
+}
+.forecast-card.warning {
+  background: var(--amber-bg);
+  border-color: var(--amber-border);
+}
+.forecast-card.danger {
+  background: var(--red-bg);
+  border-color: var(--red-border);
+}
+.forecast-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.forecast-value {
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+}
+.forecast-value.green { color: var(--green); }
+.forecast-value.red { color: var(--red); }
+.forecast-sub {
+  font-size: 10px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+/* Targets */
+.targets-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.targets-header span:not(:first-child) { text-align: center; }
+.target-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.target-row:last-child { border-bottom: none; }
+.target-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+.target-name small {
+  display: block;
+  font-size: 10px;
+  color: var(--text3);
+  font-weight: 400;
+  margin-top: 2px;
+}
+.target-val {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+.target-val.muted { color: var(--text3); }
+.target-delta {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.target-delta.ok { background: var(--green-bg); color: var(--green); }
+.target-delta.warn { background: var(--amber-bg); color: var(--amber); }
+.target-delta.bad { background: var(--red-bg); color: var(--red); }
+.target-delta.info { background: var(--surface2); color: var(--text2); }
+
+/* Fix Block */
+.fix-block {
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 12px;
+}
+.fix-block.critical {
+  background: var(--red-bg);
+  border-color: var(--red-border);
+}
+.fix-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.fix-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+.fix-title {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.fix-subtitle {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+.fix-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.fix-option {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+.fix-option-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.fix-option-letter {
+  width: 22px;
+  height: 22px;
+  background: var(--text);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+}
+.fix-option-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+}
+.fix-option-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text2);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+.fix-option-row:last-child { border-bottom: none; }
+.fix-option-row span:last-child {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--text);
+}
+.fix-option-row .change {
+  color: var(--red);
+}
+.fix-option-row .change.positive {
+  color: var(--green);
+}
+
+/* LTV Table */
+.ltv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.ltv-table th {
+  text-align: left;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 10px 12px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.ltv-table th:not(:first-child) { text-align: right; }
+.ltv-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-weight: 500;
+}
+.ltv-table td:not(:first-child) { text-align: right; }
+.ltv-table td:first-child {
+  font-family: var(--sans);
+  font-weight: 600;
+  color: var(--text2);
+}
+.ltv-table tr:last-child td { border-bottom: none; }
+.ltv-table tr:hover td { background: var(--surface2); }
+.ltv-table tr.payback-row {
+  background: var(--green-bg);
+}
+.ltv-table tr.payback-row td:first-child {
+  color: var(--green);
+}
+.ltv-table .positive { color: var(--green); }
+.ltv-table .negative { color: var(--red); }
+.ltv-table .muted { color: var(--text3); }
+
+.expand-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: var(--surface2);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--sans);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: -1px;
+  border-top: 1px solid var(--border);
+}
+.expand-btn:hover { background: var(--border); color: var(--text); }
+
+.ltv-hidden {
+  display: none;
+  margin-top: -12px;
+}
+.ltv-hidden.show {
+  display: block;
+}
+.ltv-hidden table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.ltv-hidden td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--text2);
+}
+.ltv-hidden td:not(:first-child) { text-align: right; }
+.ltv-hidden td:first-child { font-family: var(--sans); }
+.ltv-hidden tr:hover td { background: var(--surface2); }
+
+/* Business Break-Even Grid */
+.be-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.be-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  text-align: center;
+}
+.be-card.highlight { background: var(--green-bg); border-color: var(--green-border); }
+.be-card.warning { background: var(--amber-bg); border-color: var(--amber-border); }
+.be-card.danger { background: var(--red-bg); border-color: var(--red-border); }
+.be-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.be-value {
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+}
+.be-value.green { color: var(--green); }
+.be-value.red { color: var(--red); }
+.be-sub {
+  font-size: 10px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+/* P&L Table */
+.pnl-table {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.pnl-cell {
+  background: var(--surface);
+  padding: 12px 14px;
+  font-size: 13px;
+}
+.pnl-cell.header {
+  background: var(--surface2);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.pnl-cell.label {
+  color: var(--text2);
+}
+.pnl-cell.value {
+  font-family: var(--mono);
+  font-weight: 600;
+  text-align: right;
+}
+.pnl-cell.total {
+  background: var(--surface2);
+  font-weight: 700;
+}
+.pnl-cell.positive { color: var(--green); }
+.pnl-cell.negative { color: var(--red); }
+
+/* Sensitivity */
+.sens-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.sens-container-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+.sens-block {
+  overflow-x: auto;
+}
+.sens-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  margin-bottom: 10px;
+}
+.sens-matrix {
+  display: grid;
+  gap: 2px;
+  font-size: 10px;
+  min-width: fit-content;
+}
+.sens-cell {
+  padding: 6px 4px;
+  text-align: center;
+  background: var(--surface2);
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.sens-cell.header {
+  background: transparent;
+  color: var(--text3);
+  font-size: 9px;
+  font-weight: 700;
+}
+.sens-cell.row-header {
+  background: transparent;
+  color: var(--text3);
+  font-size: 9px;
+  font-weight: 700;
+  text-align: right;
+  padding-right: 8px;
+}
+.sens-cell.good { background: var(--green-bg); color: var(--green); }
+.sens-cell.ok { background: #F0FDF4; color: #16A34A; }
+.sens-cell.warn { background: var(--amber-bg); color: var(--amber); }
+.sens-cell.bad { background: var(--red-bg); color: var(--red); }
+.sens-cell.current { 
+  outline: 2px solid var(--text); 
+  outline-offset: -1px;
+  font-weight: 800;
+}
+
+/* Summary Block */
+.summary-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-top: 12px;
+  box-shadow: var(--shadow);
+}
+.summary-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.summary-icon {
+  font-size: 28px;
+}
+.summary-title {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+}
+.summary-subtitle {
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 2px;
+}
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.summary-section {
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+.summary-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 10px;
+}
+.summary-list {
+  list-style: none;
+}
+.summary-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text2);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.summary-list li:last-child { border-bottom: none; }
+.summary-list li strong {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--text);
+}
+.summary-list li .tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.summary-list li .tag.green { background: var(--green-bg); color: var(--green); }
+.summary-list li .tag.red { background: var(--red-bg); color: var(--red); }
+
+@media (max-width: 768px) {
+  .grid2, .grid3, .grid4 { grid-template-columns: 1fr; }
+  .header { flex-direction: column; gap: 16px; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .kpi-grid .kpi-card:last-child { grid-column: span 2; }
+  .forecast-grid { grid-template-columns: repeat(2, 1fr); }
+  .forecast-grid .forecast-card:last-child { grid-column: span 2; }
+  .targets-header, .target-row { grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 8px; }
+  .target-name small { display: none; }
+  .fix-options { grid-template-columns: 1fr; }
+  .be-grid { grid-template-columns: repeat(2, 1fr); }
+  .sens-container { grid-template-columns: 1fr; }
+  .sens-container-3 { grid-template-columns: 1fr; }
+  .summary-grid { grid-template-columns: 1fr; }
+  .pnl-table { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <h1>Unit Economics Calculator</h1>
+    <p id="header-desc">Введите бюджет и CPA — калькулятор покажет прогноз, целевые метрики и что нужно для выхода в плюс за 18 месяцев.</p>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn active" onclick="setLang('ru')">RU</button>
+  </div>
+</div>
+
+<!-- ==================== INPUTS ==================== -->
+
+<!-- Budget -->
+<div class="section">
+  <div class="section-title">💰 <span id="t-budget">Бюджет на тест</span></div>
+  <div class="field-num">
+    <label id="l-total-budget">Общий бюджет на весь период тестирования, $</label>
+    <input type="number" id="total-budget" value="50000" min="1000" max="1000000" step="1000" oninput="calc()">
+  </div>
+</div>
+
+<!-- Pricing -->
+<div class="section">
+  <div class="section-title">💵 <span id="t-pricing">Цены подписок</span></div>
+  <div class="grid3">
+    <div class="field-num">
+      <label>Yearly, $</label>
+      <input type="number" id="price-yearly" value="49.99" min="0.99" max="499" step="0.01" oninput="calc()">
+    </div>
+    <div class="field-num">
+      <label>Monthly, $</label>
+      <input type="number" id="price-monthly" value="12.99" min="0.99" max="99" step="0.01" oninput="calc()">
+    </div>
+    <div class="field-num">
+      <label>Weekly, $</label>
+      <input type="number" id="price-weekly" value="6.99" min="0.99" max="49" step="0.01" oninput="calc()">
+    </div>
+  </div>
+  <div class="grid3" style="margin-top:14px;">
+    <div class="field">
+      <div class="field-label">
+        <span>Yearly %</span>
+        <span class="field-value" id="val-share-y" onclick="editVal('share-yearly')">60%</span>
+      </div>
+      <input type="range" id="share-yearly" min="0" max="100" value="60" oninput="onShareChange('yearly')">
+    </div>
+    <div class="field">
+      <div class="field-label">
+        <span>Monthly %</span>
+        <span class="field-value" id="val-share-m" onclick="editVal('share-monthly')">30%</span>
+      </div>
+      <input type="range" id="share-monthly" min="0" max="100" value="30" oninput="onShareChange('monthly')">
+    </div>
+    <div class="field">
+      <div class="field-label">
+        <span>Weekly %</span>
+        <span class="field-value" id="val-share-w">10%</span>
+      </div>
+      <input type="range" id="share-weekly" min="0" max="100" value="10" disabled style="opacity:0.5;">
+    </div>
+  </div>
+</div>
+
+<!-- Retention -->
+<div class="section">
+  <div class="section-title">📉 <span id="t-retention">Retention / Churn</span></div>
+  <div class="grid3">
+    <div class="field">
+      <div class="field-label">
+        <span id="l-renewal">Yearly Renewal Rate</span>
+        <span class="field-value" id="val-renewal" onclick="editVal('renewal')">55%</span>
+      </div>
+      <input type="range" id="renewal" min="10" max="90" value="55" oninput="updSlider(this);calc()">
+    </div>
+    <div class="field">
+      <div class="field-label">
+        <span id="l-churn-m">Monthly Churn</span>
+        <span class="field-value" id="val-churn-m" onclick="editVal('churn-m')">30%</span>
+      </div>
+      <input type="range" id="churn-m" min="5" max="70" value="30" oninput="updSlider(this);calc()">
+    </div>
+    <div class="field">
+      <div class="field-label">
+        <span id="l-churn-w">Weekly Churn</span>
+        <span class="field-value" id="val-churn-w" onclick="editVal('churn-w')">50%</span>
+      </div>
+      <input type="range" id="churn-w" min="10" max="80" value="50" oninput="updSlider(this);calc()">
+    </div>
+  </div>
+</div>
+
+<!-- Costs -->
+<div class="section">
+  <div class="section-title">⚙️ <span id="t-costs">Расходы</span></div>
+  <div class="grid3">
+    <div class="field">
+      <div class="field-label">
+        <span id="l-store">Store Fee (Apple/Google)</span>
+        <span class="field-value" id="val-store" onclick="editVal('store-fee')">15%</span>
+      </div>
+      <input type="range" id="store-fee" min="0" max="30" value="15" oninput="updSlider(this);calc()">
+    </div>
+    <div class="field">
+      <div class="field-label">
+        <span id="l-refund">Refund Rate</span>
+        <span class="field-value" id="val-refund" onclick="editVal('refund')">2%</span>
+      </div>
+      <input type="range" id="refund" min="0" max="20" value="2" oninput="updSlider(this);calc()">
+    </div>
+    <div class="field-num">
+      <label id="l-cogs">COGS / user / month, $</label>
+      <input type="number" id="cogs" value="0.80" min="0" max="10" step="0.05" oninput="calc()">
+    </div>
+  </div>
+</div>
+
+<!-- Traffic Channels -->
+<div class="section">
+  <div class="section-title">🎯 <span id="t-traffic">Каналы трафика</span></div>
+  <div class="grid2">
+    <!-- Web Channel -->
+    <div class="channel-card web" id="ch-web">
+      <div class="channel-header">
+        <div class="channel-info">
+          <span class="channel-icon">🌐</span>
+          <span class="channel-name">Web</span>
+          <span class="channel-badge web">WEB</span>
+        </div>
+        <label class="toggle-wrap">
+          <div class="toggle">
+            <input type="checkbox" id="tog-web" checked onchange="toggleChannel('web')">
+            <div class="toggle-slider"></div>
+          </div>
+          <span class="toggle-label active" id="lbl-web">On</span>
+        </label>
+      </div>
+      <div class="channel-content">
+        <div class="field">
+          <div class="field-label">
+            <span id="l-web-share">Доля бюджета</span>
+            <span class="field-value" id="val-web-share">40%</span>
+          </div>
+          <input type="range" id="web-share" min="0" max="100" value="40" oninput="updSlider(this);calc()">
+        </div>
+        <div class="grid2" style="margin-top:10px;">
+          <div class="field-num">
+            <label>CPA, $</label>
+            <input type="number" id="web-cpa" value="50" min="1" max="500" step="1" oninput="calc()">
+          </div>
+          <div class="field-num">
+            <label>Paywall Conv, %</label>
+            <input type="number" id="web-conv" value="2" min="0.1" max="30" step="0.1" oninput="calc()">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- App Channel -->
+    <div class="channel-card app" id="ch-app">
+      <div class="channel-header">
+        <div class="channel-info">
+          <span class="channel-icon">📱</span>
+          <span class="channel-name">App</span>
+          <span class="channel-badge app">APP</span>
+        </div>
+        <label class="toggle-wrap">
+          <div class="toggle">
+            <input type="checkbox" id="tog-app" checked onchange="toggleChannel('app')">
+            <div class="toggle-slider"></div>
+          </div>
+          <span class="toggle-label active" id="lbl-app">On</span>
+        </label>
+      </div>
+      <div class="channel-content">
+        <div class="field">
+          <div class="field-label">
+            <span id="l-app-share">Доля бюджета</span>
+            <span class="field-value" id="val-app-share">60%</span>
+          </div>
+          <input type="range" id="app-share" min="0" max="100" value="60" oninput="updSlider(this);calc()">
+        </div>
+        <div class="grid2" style="margin-top:10px;">
+          <div class="field-num">
+            <label>CPA, $</label>
+            <input type="number" id="app-cpa" value="35" min="1" max="500" step="1" oninput="calc()">
+          </div>
+          <div class="field-num">
+            <label>Paywall Conv, %</label>
+            <input type="number" id="app-conv" value="8" min="0.1" max="30" step="0.1" oninput="calc()">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Organic & Email -->
+  <div class="grid2" style="margin-top:14px;">
+    <div class="field">
+      <div class="field-label">
+        <span id="l-organic">Organic % (от всех покупок)</span>
+        <span class="field-value" id="val-organic">15%</span>
+      </div>
+      <input type="range" id="organic" min="0" max="50" value="15" oninput="updSlider(this);calc()">
+    </div>
+    <div class="field">
+      <div class="field-label">
+        <span id="l-email">Email % (от всех покупок)</span>
+        <span class="field-value" id="val-email">10%</span>
+      </div>
+      <input type="range" id="email" min="0" max="40" value="10" oninput="updSlider(this);calc()">
+    </div>
+  </div>
+</div>
+
+<!-- Upsells -->
+<div class="section">
+  <div class="section-title">🚀 <span id="t-upsells">Апселы</span></div>
+  <div class="grid2">
+    <!-- D0 Upsells -->
+    <div class="upsell-block">
+      <div class="upsell-header">
+        <span class="upsell-title" id="l-d0-upsells">D0 Upsells (сразу после покупки)</span>
+        <label class="toggle-wrap">
+          <div class="toggle">
+            <input type="checkbox" id="tog-d0" checked onchange="toggleUpsell('d0')">
+            <div class="toggle-slider"></div>
+          </div>
+        </label>
+      </div>
+      <div class="upsell-list-header">
+        <span>#</span>
+        <span>Price, $</span>
+        <span>Conv, %</span>
+        <span></span>
+      </div>
+      <div id="d0-list"></div>
+      <button class="add-btn" onclick="addUpsell('d0')">+ Add Upsell</button>
+    </div>
+    <!-- Monthly Packs -->
+    <div class="upsell-block">
+      <div class="upsell-header">
+        <span class="upsell-title" id="l-packs">Monthly Packs (ежемесячно)</span>
+        <label class="toggle-wrap">
+          <div class="toggle">
+            <input type="checkbox" id="tog-packs" checked onchange="toggleUpsell('packs')">
+            <div class="toggle-slider"></div>
+          </div>
+        </label>
+      </div>
+      <div class="upsell-list-header">
+        <span>#</span>
+        <span>Price, $</span>
+        <span>Conv, %/mo</span>
+        <span></span>
+      </div>
+      <div id="packs-list"></div>
+      <button class="add-btn" onclick="addUpsell('packs')">+ Add Pack</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== RESULTS ==================== -->
+<div class="results-header">
+  <span>📊</span>
+  <span id="t-results">РЕЗУЛЬТАТЫ</span>
+</div>
+
+<!-- KPI Summary -->
+<div class="section-desc">Ключевые метрики юнит-экономики одного платящего пользователя</div>
+<div class="kpi-grid" id="kpi-grid"></div>
+
+<!-- Forecast -->
+<div class="section">
+  <div class="section-title">📈 <span id="t-forecast">Прогноз при текущих вводных</span></div>
+  <div class="section-desc">Сколько юзеров привлечём и хватит ли бюджета до окупаемости</div>
+  <div class="forecast-grid" id="forecast-grid"></div>
+</div>
+
+<!-- Target Metrics -->
+<div class="section">
+  <div class="section-title">🎯 <span id="t-targets">Целевые метрики для break-even за 18 мес</span></div>
+  <div class="section-desc">Границы метрик при которых экономика ещё сходится</div>
+  <div class="targets-header">
+    <span id="th-metric">Метрика</span>
+    <span id="th-need">Нужно</span>
+    <span id="th-now">Сейчас</span>
+    <span id="th-delta">Запас</span>
+  </div>
+  <div id="targets-container"></div>
+</div>
+
+<!-- Fix Block (если не сходится) -->
+<div id="fix-block"></div>
+
+<!-- LTV Timeline -->
+<div class="section">
+  <div class="section-title">📅 <span id="t-ltv">LTV Timeline</span></div>
+  <div class="section-desc">Как растёт доход с одного юзера по месяцам</div>
+  <table class="ltv-table">
+    <thead>
+      <tr>
+        <th>Period</th>
+        <th>Gross LTV</th>
+        <th>Net LTV</th>
+        <th>+ Upsells</th>
+        <th>Total LTV</th>
+        <th>vs eCPA</th>
+      </tr>
+    </thead>
+    <tbody id="ltv-body"></tbody>
+  </table>
+  <button class="expand-btn" id="ltv-expand-btn" onclick="toggleLtvExpand()">
+    <span id="ltv-expand-icon">▼</span>
+    <span id="ltv-expand-text">Показать все месяцы</span>
+  </button>
+  <div id="ltv-hidden" class="ltv-hidden"></div>
+</div>
+
+<!-- Business Break-Even -->
+<div class="section">
+  <div class="section-title">🏦 <span id="t-be">Business Break-Even (когортная модель)</span></div>
+  <div class="section-desc">Когда бизнес выйдет в ноль с учётом накопления всех когорт</div>
+  <div class="be-grid" id="be-grid"></div>
+</div>
+
+<!-- P&L -->
+<div class="section">
+  <div class="section-title">💸 <span id="t-pnl">P&L (при рекомендуемом бюджете)</span></div>
+  <div class="section-desc">Прибыль/убыток при D0 и после достижения Payback</div>
+  <div class="pnl-table" id="pnl-table"></div>
+</div>
+
+<!-- Sensitivity Analysis -->
+<div class="section">
+  <div class="section-title">📊 <span id="t-sens">Sensitivity Analysis</span></div>
+  <div class="section-desc">Как изменится Payback при изменении ключевых параметров</div>
+  <div class="sens-container-3">
+    <div class="sens-block">
+      <div class="sens-label">CPA × Churn → Payback</div>
+      <div class="sens-sublabel">Риски по трафику и retention</div>
+      <div class="sens-matrix" id="sens-cpa-churn"></div>
+    </div>
+    <div class="sens-block">
+      <div class="sens-label">Budget × CPA → хватит ли</div>
+      <div class="sens-sublabel">Планирование инвестиций</div>
+      <div class="sens-matrix" id="sens-budget-cpa"></div>
+    </div>
+    <div class="sens-block">
+      <div class="sens-label">CPA × Conv → Payback</div>
+      <div class="sens-sublabel">Влияние улучшения воронки</div>
+      <div class="sens-matrix" id="sens-cpa-conv"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Summary -->
+<div class="summary-block" id="summary-block"></div>
+
+</div>
+
+<script>
+// ==================== STATE ====================
+const S = { 
+  lang: 'ru',
+  channels: { web: true, app: true },
+  upsells: {
+    d0: { 
+      enabled: true, 
+      items: [
+        { price: 9.99, conv: 12 },
+        { price: 19.99, conv: 5 }
+      ] 
+    },
+    packs: { 
+      enabled: true, 
+      items: [
+        { price: 4.99, conv: 5 },
+        { price: 9.99, conv: 2 }
+      ] 
+    }
+  }
+};
+
+// ==================== i18n ====================
+const i18n = {
+  en: {
+    headerDesc: "Enter budget and CPA — calculator shows forecast, target metrics, and what's needed to break even in 18 months.",
+    tBudget: "Budget & CPA",
+    lTotalBudget: "Total test budget, $",
+    tPricing: "Subscription Prices",
+    tRetention: "Retention / Churn",
+    lRenewal: "Yearly Renewal Rate",
+    lChurnM: "Monthly Churn",
+    lChurnW: "Weekly Churn",
+    tCosts: "Costs",
+    lStore: "Store Fee (Apple/Google)",
+    lRefund: "Refund Rate",
+    lCogs: "COGS / user / month, $",
+  },
+  ru: {
+    headerDesc: "Введите бюджет и CPA — калькулятор покажет прогноз, целевые метрики и что нужно для выхода в плюс за 18 месяцев.",
+    tBudget: "Бюджет и CPA",
+    lTotalBudget: "Общий бюджет на тест, $",
+    tPricing: "Цены подписок",
+    tRetention: "Retention / Churn",
+    lRenewal: "Yearly Renewal Rate",
+    lChurnM: "Monthly Churn",
+    lChurnW: "Weekly Churn",
+    tCosts: "Расходы",
+    lStore: "Store Fee (Apple/Google)",
+    lRefund: "Refund Rate",
+    lCogs: "COGS / user / month, $",
+  }
+};
+
+function setLang(lang) {
+  S.lang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent === lang.toUpperCase()));
+  
+  const t = i18n[lang];
+  document.getElementById('header-desc').textContent = t.headerDesc;
+  document.getElementById('t-budget').textContent = t.tBudget;
+  document.getElementById('l-total-budget').textContent = t.lTotalBudget;
+  document.getElementById('t-pricing').textContent = t.tPricing;
+  document.getElementById('t-retention').textContent = t.tRetention;
+  document.getElementById('l-renewal').textContent = t.lRenewal;
+  document.getElementById('l-churn-m').textContent = t.lChurnM;
+  document.getElementById('l-churn-w').textContent = t.lChurnW;
+  document.getElementById('t-costs').textContent = t.tCosts;
+  document.getElementById('l-store').textContent = t.lStore;
+  document.getElementById('l-refund').textContent = t.lRefund;
+  document.getElementById('l-cogs').textContent = t.lCogs;
+  
+  calc();
+}
+
+// ==================== HELPERS ====================
+const gv = id => parseFloat(document.getElementById(id)?.value) || 0;
+const fmt = (n, d = 2) => '$' + n.toFixed(d).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const fmtK = n => Math.abs(n) >= 1000 ? '$' + (n / 1000).toFixed(1) + 'K' : fmt(n, 0);
+
+function updSlider(el) {
+  const id = el.id;
+  const val = parseFloat(el.value);
+  const dispMap = {
+    'renewal': 'val-renewal',
+    'churn-m': 'val-churn-m',
+    'churn-w': 'val-churn-w',
+    'store-fee': 'val-store',
+    'refund': 'val-refund',
+    'web-share': 'val-web-share',
+    'app-share': 'val-app-share',
+    'organic': 'val-organic',
+    'email': 'val-email',
+  };
+  const dispId = dispMap[id];
+  if (dispId) document.getElementById(dispId).textContent = val + '%';
+}
+
+function onShareChange(type) {
+  const y = gv('share-yearly');
+  const m = gv('share-monthly');
+  const total = y + m;
+  
+  if (total > 100) {
+    if (type === 'yearly') {
+      document.getElementById('share-monthly').value = 100 - y;
+    } else {
+      document.getElementById('share-yearly').value = 100 - m;
+    }
+  }
+  
+  const yFinal = gv('share-yearly');
+  const mFinal = gv('share-monthly');
+  const wFinal = Math.max(0, 100 - yFinal - mFinal);
+  
+  document.getElementById('val-share-y').textContent = yFinal + '%';
+  document.getElementById('val-share-m').textContent = mFinal + '%';
+  document.getElementById('val-share-w').textContent = wFinal + '%';
+  document.getElementById('share-weekly').value = wFinal;
+  
+  calc();
+}
+
+function editVal(sliderId) {
+  const slider = document.getElementById(sliderId);
+  const newVal = prompt('Введите значение:', slider.value);
+  if (newVal !== null && !isNaN(parseFloat(newVal))) {
+    slider.value = parseFloat(newVal);
+    if (sliderId.includes('share')) {
+      onShareChange(sliderId.replace('share-', ''));
+    } else {
+      updSlider(slider);
+      calc();
+    }
+  }
+}
+
+// ==================== CHANNELS ====================
+function toggleChannel(ch) {
+  const checked = document.getElementById('tog-' + ch).checked;
+  S.channels[ch] = checked;
+  const card = document.getElementById('ch-' + ch);
+  const lbl = document.getElementById('lbl-' + ch);
+  card.classList.toggle('disabled', !checked);
+  lbl.textContent = checked ? 'On' : 'Off';
+  lbl.classList.toggle('active', checked);
+  calc();
+}
+
+// ==================== UPSELLS ====================
+function toggleUpsell(type) {
+  const checked = document.getElementById('tog-' + type).checked;
+  S.upsells[type].enabled = checked;
+  const block = document.getElementById(type + '-list').parentElement;
+  block.classList.toggle('disabled', !checked);
+  calc();
+}
+
+function renderUpsells() {
+  ['d0', 'packs'].forEach(type => {
+    const list = document.getElementById(type + '-list');
+    const items = S.upsells[type].items;
+    list.innerHTML = items.map((item, i) => `
+      <div class="upsell-row">
+        <span class="upsell-num">#${i + 1}</span>
+        <input type="number" class="upsell-input" value="${item.price}" min="0.99" max="499" step="0.01"
+          onchange="updateUpsell('${type}', ${i}, 'price', this.value)">
+        <input type="number" class="upsell-input" value="${item.conv}" min="0" max="100" step="0.5"
+          onchange="updateUpsell('${type}', ${i}, 'conv', this.value)">
+        <button class="upsell-del" onclick="delUpsell('${type}', ${i})">×</button>
+      </div>
+    `).join('');
+  });
+}
+
+function updateUpsell(type, idx, field, value) {
+  S.upsells[type].items[idx][field] = parseFloat(value) || 0;
+  calc();
+}
+
+function addUpsell(type) {
+  S.upsells[type].items.push({ price: 9.99, conv: 5 });
+  renderUpsells();
+  calc();
+}
+
+function delUpsell(type, idx) {
+  if (S.upsells[type].items.length > 1) {
+    S.upsells[type].items.splice(idx, 1);
+    renderUpsells();
+    calc();
+  }
+}
+
+// ==================== LTV EXPAND ====================
+let ltvExpanded = false;
+function toggleLtvExpand() {
+  ltvExpanded = !ltvExpanded;
+  document.getElementById('ltv-hidden').classList.toggle('show', ltvExpanded);
+  document.getElementById('ltv-expand-icon').textContent = ltvExpanded ? '▲' : '▼';
+  document.getElementById('ltv-expand-text').textContent = ltvExpanded ? 'Скрыть' : 'Показать все месяцы';
+}
+
+// ==================== MAIN CALCULATION ====================
+function calc() {
+  // === INPUTS ===
+  const totalBudget = gv('total-budget');
+  
+  const priceY = gv('price-yearly');
+  const priceM = gv('price-monthly');
+  const priceW = gv('price-weekly');
+  
+  const shareY = gv('share-yearly') / 100;
+  const shareM = gv('share-monthly') / 100;
+  const shareW = Math.max(0, 1 - shareY - shareM);
+  
+  const renewal = gv('renewal') / 100;
+  const churnM = gv('churn-m') / 100;
+  const churnW = gv('churn-w') / 100;
+  
+  const storeFee = gv('store-fee') / 100;
+  const refundRate = gv('refund') / 100;
+  const cogs = gv('cogs');
+  
+  // === TRAFFIC CHANNELS ===
+  const webEnabled = S.channels.web;
+  const appEnabled = S.channels.app;
+  const webShare = webEnabled ? gv('web-share') / 100 : 0;
+  const appShare = appEnabled ? gv('app-share') / 100 : 0;
+  const webCPA = gv('web-cpa');
+  const appCPA = gv('app-cpa');
+  const webConv = gv('web-conv') / 100;
+  const appConv = gv('app-conv') / 100;
+  
+  const organicPct = gv('organic') / 100;
+  const emailPct = gv('email') / 100;
+  
+  // === CALCULATIONS ===
+  
+  // Net multiplier (после комиссии стора и рефандов)
+  const netMult = (1 - storeFee) * (1 - refundRate);
+  
+  // ARPPU Gross (средний чек подписки)
+  const arppuGross = priceY * shareY + priceM * shareM + priceW * shareW;
+  
+  // ARPPU Net (после вычетов)
+  const arppuNet = arppuGross * netMult;
+  
+  // === D0 UPSELLS ===
+  let d0UpsellRev = 0;
+  if (S.upsells.d0.enabled) {
+    S.upsells.d0.items.forEach(item => {
+      d0UpsellRev += item.price * (item.conv / 100) * netMult;
+    });
+  }
+  
+  // ARPPU с D0 апселами
+  const arppuWithD0 = arppuNet + d0UpsellRev;
+  
+  // === BLENDED CPA (только из каналов) ===
+  // Нормализуем доли каналов
+  const totalChShare = webShare + appShare;
+  const normWebShare = totalChShare > 0 ? webShare / totalChShare : 0;
+  const normAppShare = totalChShare > 0 ? appShare / totalChShare : 0;
+  
+  // Если оба канала выключены — fallback на Web CPA
+  let blendedPaidCPA;
+  if (!webEnabled && !appEnabled) {
+    blendedPaidCPA = webCPA; // fallback
+  } else {
+    blendedPaidCPA = normWebShare * webCPA + normAppShare * appCPA;
+  }
+  
+  // eCPA с учётом органики и email
+  // directShare = доля платных покупок от всех
+  const directShare = Math.max(0.1, 1 - organicPct - emailPct);
+  const eCPA = Math.max(1, blendedPaidCPA * directShare); // минимум $1 для защиты от деления на 0
+  
+  // Blended paywall conversion
+  const blendedConv = totalChShare > 0 
+    ? normWebShare * webConv + normAppShare * appConv 
+    : webConv;
+  
+  // === LTV FUNCTIONS ===
+  
+  // LTV Gross (сколько заплатит юзер за N месяцев)
+  function grossLTV(months) {
+    // Yearly: платит сразу за год, renewal на 12м месяце
+    let yearly = priceY;
+    if (months >= 12) yearly += priceY * renewal;
+    if (months >= 24) yearly += priceY * renewal * renewal;
+    
+    // Monthly: платит каждый месяц с churn
+    let monthly = 0;
+    for (let i = 0; i < months; i++) {
+      monthly += priceM * Math.pow(1 - churnM, i);
+    }
+    
+    // Weekly: платит каждую неделю с churn
+    let weekly = 0;
+    const weeks = months * 4.33;
+    for (let i = 0; i < Math.floor(weeks); i++) {
+      weekly += priceW * Math.pow(1 - churnW, i);
+    }
+    
+    return shareY * yearly + shareM * monthly + shareW * weekly;
+  }
+  
+  // LTV Net (после вычетов и COGS)
+  function netLTV(months) {
+    const gltv = grossLTV(months);
+    
+    // COGS для Yearly
+    const yearlyMonths = Math.min(months, 12) + (months >= 12 ? Math.min(months - 12, 12) * renewal : 0);
+    const yearlyCogs = shareY * yearlyMonths * cogs;
+    
+    // COGS для Monthly (с churn)
+    let monthlyCogs = 0;
+    for (let i = 0; i < months; i++) {
+      monthlyCogs += cogs * Math.pow(1 - churnM, i);
+    }
+    monthlyCogs *= shareM;
+    
+    // COGS для Weekly
+    let weeklyCogs = 0;
+    const weeks = months * 4.33;
+    for (let i = 0; i < Math.floor(weeks); i++) {
+      weeklyCogs += (cogs / 4.33) * Math.pow(1 - churnW, i);
+    }
+    weeklyCogs *= shareW;
+    
+    return gltv * netMult - yearlyCogs - monthlyCogs - weeklyCogs;
+  }
+  
+  // Active months (для расчёта packs)
+  function activeMonths(months) {
+    const yM = Math.min(months, 12) + (months >= 12 ? Math.min(months - 12, 12) * renewal : 0);
+    let mSum = 0;
+    for (let i = 0; i < months; i++) mSum += Math.pow(1 - churnM, i);
+    let wSum = 0;
+    const weeks = months * 4.33;
+    for (let i = 0; i < Math.floor(weeks); i++) wSum += Math.pow(1 - churnW, i);
+    return shareY * yM + shareM * mSum + shareW * (wSum / 4.33);
+  }
+  
+  // Upsell LTV (D0 + Packs за период)
+  function upsellLTV(months) {
+    let packLTV = 0;
+    if (S.upsells.packs.enabled) {
+      S.upsells.packs.items.forEach(item => {
+        // Pack покупается каждый месяц частью активных юзеров
+        packLTV += item.price * (item.conv / 100) * netMult * activeMonths(months);
+      });
+    }
+    return d0UpsellRev + packLTV;
+  }
+  
+  // Total LTV (net subscription + upsells)
+  function totalLTV(months) {
+    return netLTV(months) + upsellLTV(months);
+  }
+  
+  // === KEY METRICS ===
+  const ltv1 = totalLTV(1);
+  const ltv3 = totalLTV(3);
+  const ltv6 = totalLTV(6);
+  const ltv12 = totalLTV(12);
+  const ltv18 = totalLTV(18);
+  
+  // ROAS D0
+  const roasD0 = arppuWithD0 / eCPA;
+  
+  // Payback period
+  let paybackMonth = null;
+  for (let m = 0; m <= 18; m++) {
+    const ltvAtMonth = m === 0 ? arppuWithD0 : totalLTV(m);
+    if (ltvAtMonth >= eCPA) {
+      paybackMonth = m;
+      break;
+    }
+  }
+  
+  // === FORECAST ===
+  const totalPurchases = totalBudget / eCPA;
+  
+  // Бюджет на день рассчитываем так чтобы хватило минимум до Payback или на 6 мес
+  const minMonths = paybackMonth !== null ? Math.max(paybackMonth + 1, 6) : 6;
+  const budgetPerDay = totalBudget / (minMonths * 30);
+  const purchPerDay = budgetPerDay / eCPA;
+  const purchPerMonth = purchPerDay * 30;
+  const spendPerMonth = budgetPerDay * 30;
+  
+  // Сколько месяцев реально хватит бюджета при таком spend
+  const monthsOfBudget = Math.floor(totalBudget / spendPerMonth);
+  
+  // Хватит ли до payback
+  const paybackBeforeBudgetEnds = paybackMonth !== null && paybackMonth <= monthsOfBudget;
+  
+  // P&L
+  const revenueD0Total = totalPurchases * arppuWithD0;
+  const profitD0Total = revenueD0Total - totalBudget;
+  
+  const ltvAtPayback = paybackMonth !== null ? totalLTV(paybackMonth) : ltv18;
+  const revenueAtPayback = totalPurchases * ltvAtPayback;
+  const profitAtPayback = revenueAtPayback - totalBudget;
+  
+  // === TARGET METRICS ===
+  // Max CPA для break-even (LTV18 = граница)
+  const maxCPA = ltv18;
+  const cpaOk = eCPA <= maxCPA;
+  const cpaMargin = ((maxCPA / eCPA) - 1) * 100;
+  
+  // Min ARPPU (чтобы ROAS D0 >= 0.7 условно, но мы просто показываем факт)
+  const minARPPU = eCPA * 0.7;
+  const arppuOk = arppuWithD0 >= minARPPU;
+  const arppuMargin = ((arppuWithD0 / minARPPU) - 1) * 100;
+  
+  // Max Churn (при котором LTV18 >= eCPA) - используем полный расчёт LTV
+  let maxChurnM = churnM;
+  const safeChurnM = Math.max(0.01, churnM); // защита от деления на 0
+  for (let c = 0.05; c <= 0.9; c += 0.01) {
+    // Полный расчёт LTV18 с тестовым churn
+    const testChurnM = c;
+    const testChurnW = churnW * (c / safeChurnM); // пропорционально меняем weekly
+    
+    // Gross LTV
+    let yearly = priceY + priceY * renewal; // 18 мес включает renewal
+    let monthly = 0;
+    for (let i = 0; i < 18; i++) {
+      monthly += priceM * Math.pow(1 - testChurnM, i);
+    }
+    let weekly = 0;
+    const weeks = 18 * 4.33;
+    for (let i = 0; i < Math.floor(weeks); i++) {
+      weekly += priceW * Math.pow(1 - testChurnW, i);
+    }
+    const grossLTV = shareY * yearly + shareM * monthly + shareW * weekly;
+    
+    // COGS
+    const yearlyMonths = 12 + 6 * renewal;
+    const yearlyCogs = shareY * yearlyMonths * cogs;
+    let monthlyCogs = 0;
+    for (let i = 0; i < 18; i++) {
+      monthlyCogs += cogs * Math.pow(1 - testChurnM, i);
+    }
+    monthlyCogs *= shareM;
+    let weeklyCogs = 0;
+    for (let i = 0; i < Math.floor(weeks); i++) {
+      weeklyCogs += (cogs / 4.33) * Math.pow(1 - testChurnW, i);
+    }
+    weeklyCogs *= shareW;
+    
+    // Net LTV + Upsells
+    const netLTV = grossLTV * netMult - yearlyCogs - monthlyCogs - weeklyCogs;
+    
+    // Active months для packs
+    const yM = 12 + 6 * renewal;
+    let mSum = 0;
+    for (let i = 0; i < 18; i++) mSum += Math.pow(1 - testChurnM, i);
+    let wSum = 0;
+    for (let i = 0; i < Math.floor(weeks); i++) wSum += Math.pow(1 - testChurnW, i);
+    const activeM = shareY * yM + shareM * mSum + shareW * (wSum / 4.33);
+    
+    let packLTV = 0;
+    if (S.upsells.packs.enabled) {
+      S.upsells.packs.items.forEach(item => {
+        packLTV += item.price * (item.conv / 100) * netMult * activeM;
+      });
+    }
+    
+    const testLTV18 = netLTV + d0UpsellRev + packLTV;
+    
+    if (testLTV18 < eCPA) {
+      maxChurnM = Math.max(0.05, c - 0.01);
+      break;
+    }
+    maxChurnM = c;
+  }
+  const churnOk = churnM <= maxChurnM;
+  const churnMargin = ((maxChurnM / churnM) - 1) * 100;
+  
+  // === RENDER KPI SUMMARY ===
+  const paybackStr = paybackMonth !== null ? (paybackMonth === 0 ? 'D0' : 'M' + paybackMonth) : '>M18';
+  const paybackClass = paybackMonth !== null && paybackMonth <= 3 ? 'good' : paybackMonth !== null && paybackMonth <= 6 ? 'warning' : 'bad';
+  
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi-card neutral">
+      <div class="kpi-label">ARPPU Net</div>
+      <div class="kpi-value">${fmt(arppuWithD0, 2)}</div>
+      <div class="kpi-sub">с D0 апселами</div>
+    </div>
+    <div class="kpi-card neutral">
+      <div class="kpi-label">eCPA</div>
+      <div class="kpi-value">${fmt(eCPA, 2)}</div>
+      <div class="kpi-sub">effective CPA</div>
+    </div>
+    <div class="kpi-card neutral">
+      <div class="kpi-label">ROAS D0</div>
+      <div class="kpi-value">${roasD0.toFixed(2)}×</div>
+      <div class="kpi-sub">${(roasD0 * 100).toFixed(0)}% окупаемость</div>
+    </div>
+    <div class="kpi-card ${paybackClass}">
+      <div class="kpi-label">Payback</div>
+      <div class="kpi-value">${paybackStr}</div>
+      <div class="kpi-sub">LTV ≥ eCPA</div>
+    </div>
+    <div class="kpi-card neutral">
+      <div class="kpi-label">LTV 18mo</div>
+      <div class="kpi-value">${fmt(ltv18, 0)}</div>
+      <div class="kpi-sub">${(ltv18 / eCPA).toFixed(1)}× от eCPA</div>
+    </div>
+  `;
+  
+  // === RENDER FORECAST ===
+  const budgetLastsClass = paybackBeforeBudgetEnds ? 'highlight' : (paybackMonth !== null ? 'warning' : 'danger');
+  const profitClass = profitAtPayback >= 0 ? 'highlight' : 'danger';
+  
+  document.getElementById('forecast-grid').innerHTML = `
+    <div class="forecast-card">
+      <div class="forecast-label">Рек. бюджет/день</div>
+      <div class="forecast-value">${fmt(budgetPerDay, 0)}</div>
+      <div class="forecast-sub">${fmtK(budgetPerDay * 30)}/мес</div>
+    </div>
+    <div class="forecast-card">
+      <div class="forecast-label">Покупок в месяц</div>
+      <div class="forecast-value">${Math.round(purchPerMonth).toLocaleString()}</div>
+      <div class="forecast-sub">${Math.round(purchPerDay)}/день</div>
+    </div>
+    <div class="forecast-card">
+      <div class="forecast-label">Покупок всего</div>
+      <div class="forecast-value">${Math.round(totalPurchases).toLocaleString()}</div>
+      <div class="forecast-sub">за весь бюджет</div>
+    </div>
+    <div class="forecast-card ${budgetLastsClass}">
+      <div class="forecast-label">Бюджета хватит</div>
+      <div class="forecast-value">${monthsOfBudget} мес</div>
+      <div class="forecast-sub">${paybackBeforeBudgetEnds ? '✓ Payback ' + paybackStr : paybackMonth ? '⚠ Payback ' + paybackStr : '✗ нет payback'}</div>
+    </div>
+    <div class="forecast-card ${profitClass}">
+      <div class="forecast-label">P&L при Payback</div>
+      <div class="forecast-value ${profitAtPayback >= 0 ? 'green' : 'red'}">${profitAtPayback >= 0 ? '+' : ''}${fmtK(profitAtPayback)}</div>
+      <div class="forecast-sub">Revenue ${fmtK(revenueAtPayback)}</div>
+    </div>
+  `;
+  
+  // === RENDER TARGETS ===
+  function deltaStr(margin, inverse = false) {
+    const m = inverse ? -margin : margin;
+    if (m > 0) return `+${m.toFixed(0)}%`;
+    return `${m.toFixed(0)}%`;
+  }
+  function deltaClass(ok, margin) {
+    if (ok && margin > 20) return 'ok';
+    if (ok) return 'warn';
+    return 'bad';
+  }
+  
+  document.getElementById('targets-container').innerHTML = `
+    <div class="target-row">
+      <div class="target-name">
+        Max CPA
+        <small>Максимальный CPA для break-even</small>
+      </div>
+      <div class="target-val">≤ ${fmt(maxCPA, 0)}</div>
+      <div class="target-val muted">${fmt(eCPA, 0)}</div>
+      <div class="target-delta ${deltaClass(cpaOk, cpaMargin)}">${cpaOk ? '✓ ' : '✗ '}${deltaStr(cpaMargin)}</div>
+    </div>
+    <div class="target-row">
+      <div class="target-name">
+        Min ARPPU
+        <small>Для ROAS D0 ≥ 0.7×</small>
+      </div>
+      <div class="target-val">≥ ${fmt(minARPPU, 2)}</div>
+      <div class="target-val muted">${fmt(arppuWithD0, 2)}</div>
+      <div class="target-delta ${deltaClass(arppuOk, arppuMargin)}">${arppuOk ? '✓ ' : '✗ '}${deltaStr(arppuMargin)}</div>
+    </div>
+    <div class="target-row">
+      <div class="target-name">
+        Max Monthly Churn
+        <small>При котором LTV18 ≥ eCPA</small>
+      </div>
+      <div class="target-val">≤ ${(maxChurnM * 100).toFixed(0)}%</div>
+      <div class="target-val muted">${(churnM * 100).toFixed(0)}%</div>
+      <div class="target-delta ${deltaClass(churnOk, churnMargin)}">${churnOk ? '✓ ' : '✗ '}${deltaStr(churnMargin)}</div>
+    </div>
+  `;
+  
+  // === RENDER FIX BLOCK (если не сходится) ===
+  const needsFix = !paybackBeforeBudgetEnds || paybackMonth === null;
+  const fixBlock = document.getElementById('fix-block');
+  
+  if (needsFix) {
+    const isCritical = paybackMonth === null;
+    
+    // Вариант A: Нужный CPA
+    const neededCPA = ltv18 * 0.85; // 15% margin
+    const cpaDelta = ((neededCPA / eCPA) - 1) * 100;
+    
+    // Вариант B: Нужный бюджет
+    const neededMonths = paybackMonth ? paybackMonth + 2 : 12;
+    const neededBudget = neededMonths * budgetPerDay * 30;
+    const budgetDelta = ((neededBudget / totalBudget) - 1) * 100;
+    
+    // Вариант C: Нужный churn
+    const neededChurn = Math.max(5, churnM * 100 - 8);
+    const improvedLTV = ltv18 * 1.25; // примерная оценка
+    
+    // Вариант D: Нужный ARPPU
+    const neededARPPU = eCPA * 0.85;
+    const arppuDelta = ((neededARPPU / arppuWithD0) - 1) * 100;
+    
+    fixBlock.innerHTML = `
+      <div class="fix-block ${isCritical ? 'critical' : ''}">
+        <div class="fix-header">
+          <div class="fix-icon">${isCritical ? '🚨' : '⚠️'}</div>
+          <div>
+            <div class="fix-title">${isCritical ? 'Математика не сходится' : 'Бюджета не хватит до Payback'}</div>
+            <div class="fix-subtitle">
+              ${isCritical 
+                ? `При текущих параметрах выход в плюс невозможен за 18 месяцев. LTV18 (${fmt(ltv18, 0)}) < eCPA (${fmt(eCPA, 0)})`
+                : `Payback: ${paybackStr} | Бюджет закончится: M${monthsOfBudget} | Дефицит: ${paybackMonth - monthsOfBudget} мес`
+              }
+            </div>
+          </div>
+        </div>
+        <div class="fix-options">
+          <div class="fix-option">
+            <div class="fix-option-header">
+              <div class="fix-option-letter">A</div>
+              <div class="fix-option-title">Снизить CPA</div>
+            </div>
+            <div class="fix-option-row"><span>Сейчас</span><span>${fmt(eCPA, 0)}</span></div>
+            <div class="fix-option-row"><span>Нужно</span><span>${fmt(neededCPA, 0)}</span></div>
+            <div class="fix-option-row"><span>Изменение</span><span class="change">${cpaDelta.toFixed(0)}%</span></div>
+          </div>
+          <div class="fix-option">
+            <div class="fix-option-header">
+              <div class="fix-option-letter">B</div>
+              <div class="fix-option-title">Увеличить бюджет</div>
+            </div>
+            <div class="fix-option-row"><span>Сейчас</span><span>${fmtK(totalBudget)}</span></div>
+            <div class="fix-option-row"><span>Нужно</span><span>${fmtK(neededBudget)}</span></div>
+            <div class="fix-option-row"><span>Изменение</span><span class="change positive">+${budgetDelta.toFixed(0)}%</span></div>
+          </div>
+          <div class="fix-option">
+            <div class="fix-option-header">
+              <div class="fix-option-letter">C</div>
+              <div class="fix-option-title">Улучшить Retention</div>
+            </div>
+            <div class="fix-option-row"><span>Сейчас Churn</span><span>${(churnM * 100).toFixed(0)}%</span></div>
+            <div class="fix-option-row"><span>Нужно Churn</span><span>≤${neededChurn.toFixed(0)}%</span></div>
+            <div class="fix-option-row"><span>LTV вырастет до</span><span class="change positive">~${fmt(improvedLTV, 0)}</span></div>
+          </div>
+          <div class="fix-option">
+            <div class="fix-option-header">
+              <div class="fix-option-letter">D</div>
+              <div class="fix-option-title">Поднять ARPPU</div>
+            </div>
+            <div class="fix-option-row"><span>Сейчас</span><span>${fmt(arppuWithD0, 2)}</span></div>
+            <div class="fix-option-row"><span>Нужно</span><span>${fmt(neededARPPU, 2)}</span></div>
+            <div class="fix-option-row"><span>Через цены/апселы</span><span class="change positive">+${Math.abs(arppuDelta).toFixed(0)}%</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    fixBlock.innerHTML = '';
+  }
+  
+  // === RENDER LTV TIMELINE ===
+  const mainPeriods = [
+    { label: 'D0', months: 0 },
+    { label: 'M1', months: 1 },
+    { label: 'M2', months: 2 },
+    { label: 'M3', months: 3 },
+    { label: 'M6', months: 6 },
+    { label: 'M12', months: 12 },
+    { label: 'M18', months: 18 },
+  ];
+  
+  const hiddenPeriods = [
+    { label: 'M4', months: 4 },
+    { label: 'M5', months: 5 },
+    { label: 'M7', months: 7 },
+    { label: 'M8', months: 8 },
+    { label: 'M9', months: 9 },
+    { label: 'M10', months: 10 },
+    { label: 'M11', months: 11 },
+    { label: 'M13', months: 13 },
+    { label: 'M14', months: 14 },
+    { label: 'M15', months: 15 },
+    { label: 'M16', months: 16 },
+    { label: 'M17', months: 17 },
+  ];
+  
+  function renderLtvRow(p) {
+    const gLTV = p.months === 0 ? arppuGross : grossLTV(p.months);
+    const nLTV = p.months === 0 ? arppuNet : netLTV(p.months);
+    const uLTV = upsellLTV(p.months);
+    const tLTV = p.months === 0 ? arppuWithD0 : (nLTV + uLTV);
+    const vsCPA = (tLTV / eCPA) * 100;
+    const isPayback = paybackMonth !== null && p.months === paybackMonth;
+    const isPast = tLTV >= eCPA;
+    
+    return `
+      <tr class="${isPayback ? 'payback-row' : ''}">
+        <td>${p.label}${isPayback ? ' ← Payback' : ''}</td>
+        <td class="muted">${fmt(gLTV, 2)}</td>
+        <td>${fmt(nLTV, 2)}</td>
+        <td class="positive">+${fmt(uLTV, 2)}</td>
+        <td class="${isPast ? 'positive' : ''}">${fmt(tLTV, 2)}</td>
+        <td class="${isPast ? 'positive' : 'negative'}">${vsCPA.toFixed(0)}%</td>
+      </tr>
+    `;
+  }
+  
+  document.getElementById('ltv-body').innerHTML = mainPeriods.map(p => renderLtvRow(p)).join('');
+  
+  document.getElementById('ltv-hidden').innerHTML = `
+    <table>
+      ${hiddenPeriods.map(p => renderLtvRow(p)).join('')}
+    </table>
+  `;
+  
+  // === BUSINESS BREAK-EVEN (Когортная модель) ===
+  // spendPerMonth и purchPerMonth уже объявлены выше
+  
+  // Инкрементальный LTV по месяцам
+  const deltaLTV = [];
+  for (let m = 1; m <= 24; m++) {
+    const curr = totalLTV(m);
+    const prev = m === 1 ? arppuWithD0 : totalLTV(m - 1);
+    deltaLTV.push(curr - prev);
+  }
+  
+  let cumulRev = 0, cumulSpend = 0;
+  let monthlyBE = null, cumulBE = null;
+  let maxDeficit = 0;
+  
+  for (let T = 1; T <= 24; T++) {
+    // Revenue от всех когорт в месяце T
+    let monthlyRev = 0;
+    for (let cohort = 1; cohort <= T; cohort++) {
+      const age = T - cohort;
+      if (age === 0) {
+        monthlyRev += purchPerMonth * arppuWithD0;
+      } else if (age < deltaLTV.length) {
+        monthlyRev += purchPerMonth * deltaLTV[age];
+      }
+    }
+    
+    cumulRev += monthlyRev;
+    cumulSpend += spendPerMonth;
+    
+    const monthlyPL = monthlyRev - spendPerMonth;
+    const cumulPL = cumulRev - cumulSpend;
+    
+    if (cumulPL < maxDeficit) maxDeficit = cumulPL;
+    if (monthlyBE === null && monthlyPL >= 0) monthlyBE = T;
+    if (cumulBE === null && cumulPL >= 0) cumulBE = T;
+  }
+  
+  const cashRequired = Math.max(totalBudget, Math.abs(maxDeficit) + spendPerMonth * 3);
+  
+  // Проверка: хватит ли заданного бюджета
+  const budgetSufficient = totalBudget >= cashRequired * 0.9; // 10% tolerance
+  
+  // Render BE Grid
+  const monthlyBEClass = monthlyBE && monthlyBE <= 6 ? 'highlight' : monthlyBE && monthlyBE <= 12 ? 'warning' : 'danger';
+  const cumulBEClass = cumulBE && cumulBE <= 12 ? 'highlight' : cumulBE && cumulBE <= 18 ? 'warning' : 'danger';
+  const cashClass = budgetSufficient ? '' : 'warning';
+  
+  document.getElementById('be-grid').innerHTML = `
+    <div class="be-card ${monthlyBEClass}">
+      <div class="be-label">Monthly BE</div>
+      <div class="be-value">${monthlyBE ? 'M' + monthlyBE : '>M24'}</div>
+      <div class="be-sub">месяц выхода в 0</div>
+    </div>
+    <div class="be-card ${cumulBEClass}">
+      <div class="be-label">Cumulative BE</div>
+      <div class="be-value">${cumulBE ? 'M' + cumulBE : '>M24'}</div>
+      <div class="be-sub">полный возврат инвестиций</div>
+    </div>
+    <div class="be-card danger">
+      <div class="be-label">Max Cash Gap</div>
+      <div class="be-value red">-${fmtK(Math.abs(maxDeficit))}</div>
+      <div class="be-sub">пик минуса на счету</div>
+    </div>
+    <div class="be-card ${cashClass}">
+      <div class="be-label">Cash Required</div>
+      <div class="be-value">${fmtK(cashRequired)}</div>
+      <div class="be-sub">${budgetSufficient ? '✓ бюджета хватит' : '⚠ нужно больше'}</div>
+    </div>
+  `;
+  
+  // === P&L ===
+  // Месячные показатели
+  const revMonthD0 = purchPerMonth * arppuWithD0;
+  const profitMonthD0 = revMonthD0 - spendPerMonth;
+  
+  const ltvAtPB = paybackMonth !== null ? totalLTV(paybackMonth) : ltv6;
+  const revMonthPB = purchPerMonth * ltvAtPB;
+  const profitMonthPB = revMonthPB - spendPerMonth;
+  
+  // За весь бюджет (monthsOfBudget месяцев)
+  const revTotalD0 = totalPurchases * arppuWithD0;
+  const profitTotalD0 = revTotalD0 - totalBudget;
+  
+  const revTotalPB = totalPurchases * ltvAtPB;
+  const profitTotalPB = revTotalPB - totalBudget;
+  
+  document.getElementById('pnl-table').innerHTML = `
+    <div class="pnl-cell header"></div>
+    <div class="pnl-cell header" style="text-align:right">Month</div>
+    <div class="pnl-cell header" style="text-align:right">Total (${monthsOfBudget} мес)</div>
+    
+    <div class="pnl-cell label">Revenue D0</div>
+    <div class="pnl-cell value">${fmtK(revMonthD0)}</div>
+    <div class="pnl-cell value">${fmtK(revTotalD0)}</div>
+    
+    <div class="pnl-cell label">Ad Spend</div>
+    <div class="pnl-cell value negative">-${fmtK(spendPerMonth)}</div>
+    <div class="pnl-cell value negative">-${fmtK(totalBudget)}</div>
+    
+    <div class="pnl-cell label total">Profit D0</div>
+    <div class="pnl-cell value total ${profitMonthD0 >= 0 ? 'positive' : 'negative'}">${profitMonthD0 >= 0 ? '+' : ''}${fmtK(profitMonthD0)}</div>
+    <div class="pnl-cell value total ${profitTotalD0 >= 0 ? 'positive' : 'negative'}">${profitTotalD0 >= 0 ? '+' : ''}${fmtK(profitTotalD0)}</div>
+    
+    <div class="pnl-cell label">Revenue @Payback</div>
+    <div class="pnl-cell value">${fmtK(revMonthPB)}</div>
+    <div class="pnl-cell value">${fmtK(revTotalPB)}</div>
+    
+    <div class="pnl-cell label total">Profit @Payback</div>
+    <div class="pnl-cell value total ${profitMonthPB >= 0 ? 'positive' : 'negative'}">${profitMonthPB >= 0 ? '+' : ''}${fmtK(profitMonthPB)}</div>
+    <div class="pnl-cell value total ${profitTotalPB >= 0 ? 'positive' : 'negative'}">${profitTotalPB >= 0 ? '+' : ''}${fmtK(profitTotalPB)}</div>
+  `;
+  
+  // === SENSITIVITY ANALYSIS ===
+  
+  // Matrix 1: Payback при CPA × Churn
+  const cpaSteps = [-30, -20, -10, 0, 10, 20, 30];
+  const churnSteps = [-30, -20, -10, 0, 10, 20, 30];
+  
+  function calcPaybackAt(cpaMultiplier, churnMultiplier) {
+    const testCPA = eCPA * (1 + cpaMultiplier / 100);
+    const testChurnM = churnM * (1 + churnMultiplier / 100);
+    const testChurnW = churnW * (1 + churnMultiplier / 100);
+    
+    // Полный расчёт LTV с тестовыми параметрами (как в основной функции)
+    function testTotalLTV(months) {
+      // Gross LTV
+      let yearly = priceY;
+      if (months >= 12) yearly += priceY * renewal;
+      
+      let monthly = 0;
+      for (let i = 0; i < months; i++) {
+        monthly += priceM * Math.pow(1 - testChurnM, i);
+      }
+      
+      let weekly = 0;
+      const weeks = months * 4.33;
+      for (let i = 0; i < Math.floor(weeks); i++) {
+        weekly += priceW * Math.pow(1 - testChurnW, i);
+      }
+      
+      const grossLTV = shareY * yearly + shareM * monthly + shareW * weekly;
+      
+      // Net LTV (после комиссий и COGS)
+      const yearlyMonths = Math.min(months, 12) + (months >= 12 ? Math.min(months - 12, 12) * renewal : 0);
+      const yearlyCogs = shareY * yearlyMonths * cogs;
+      
+      let monthlyCogs = 0;
+      for (let i = 0; i < months; i++) {
+        monthlyCogs += cogs * Math.pow(1 - testChurnM, i);
+      }
+      monthlyCogs *= shareM;
+      
+      let weeklyCogs = 0;
+      for (let i = 0; i < Math.floor(weeks); i++) {
+        weeklyCogs += (cogs / 4.33) * Math.pow(1 - testChurnW, i);
+      }
+      weeklyCogs *= shareW;
+      
+      const netLTV = grossLTV * netMult - yearlyCogs - monthlyCogs - weeklyCogs;
+      
+      // Upsells
+      const yM = Math.min(months, 12) + (months >= 12 ? Math.min(months - 12, 12) * renewal : 0);
+      let mSum = 0;
+      for (let i = 0; i < months; i++) mSum += Math.pow(1 - testChurnM, i);
+      let wSum = 0;
+      for (let i = 0; i < Math.floor(weeks); i++) wSum += Math.pow(1 - testChurnW, i);
+      const activeM = shareY * yM + shareM * mSum + shareW * (wSum / 4.33);
+      
+      let packLTV = 0;
+      if (S.upsells.packs.enabled) {
+        S.upsells.packs.items.forEach(item => {
+          packLTV += item.price * (item.conv / 100) * netMult * activeM;
+        });
+      }
+      
+      return netLTV + d0UpsellRev + packLTV;
+    }
+    
+    for (let m = 0; m <= 18; m++) {
+      if (testTotalLTV(m) >= testCPA) return m;
+    }
+    return null;
+  }
+  
+  let sens1HTML = '<div class="sens-cell header"></div>';
+  churnSteps.forEach(c => {
+    sens1HTML += `<div class="sens-cell header">${c >= 0 ? '+' : ''}${c}%</div>`;
+  });
+  
+  cpaSteps.forEach(cpa => {
+    sens1HTML += `<div class="sens-cell row-header">CPA ${cpa >= 0 ? '+' : ''}${cpa}%</div>`;
+    churnSteps.forEach(ch => {
+      const pb = calcPaybackAt(cpa, ch);
+      const isCurrent = cpa === 0 && ch === 0;
+      let cellClass = '';
+      if (pb === null) cellClass = 'bad';
+      else if (pb <= 3) cellClass = 'good';
+      else if (pb <= 6) cellClass = 'ok';
+      else if (pb <= 12) cellClass = 'warn';
+      else cellClass = 'bad';
+      if (isCurrent) cellClass += ' current';
+      
+      sens1HTML += `<div class="sens-cell ${cellClass}">${pb !== null ? (pb === 0 ? 'D0' : 'M' + pb) : '>18'}</div>`;
+    });
+  });
+  
+  document.getElementById('sens-cpa-churn').style.gridTemplateColumns = `auto repeat(${churnSteps.length}, 1fr)`;
+  document.getElementById('sens-cpa-churn').innerHTML = sens1HTML;
+  
+  // Matrix 2: Payback при Budget × CPA (хватит ли бюджета)
+  const budgetSteps = [30000, 40000, 50000, 60000, 70000];
+  const cpaSteps2 = [25, 30, 35, 40, 45, 50, 55];
+  
+  // Найти ближайшие значения к текущим
+  const closestBudgetIdx = budgetSteps.reduce((best, b, i) => 
+    Math.abs(b - totalBudget) < Math.abs(budgetSteps[best] - totalBudget) ? i : best, 0);
+  const closestCPAIdx = cpaSteps2.reduce((best, c, i) => 
+    Math.abs(c - eCPA) < Math.abs(cpaSteps2[best] - eCPA) ? i : best, 0);
+  
+  let sens2HTML = '<div class="sens-cell header"></div>';
+  cpaSteps2.forEach(c => {
+    sens2HTML += `<div class="sens-cell header">$${c}</div>`;
+  });
+  
+  budgetSteps.forEach((b, bIdx) => {
+    sens2HTML += `<div class="sens-cell row-header">${fmtK(b)}</div>`;
+    cpaSteps2.forEach((c, cIdx) => {
+      // Payback при этом CPA (LTV должен >= CPA)
+      let testPayback = null;
+      for (let m = 0; m <= 18; m++) {
+        if (totalLTV(m) >= c) {
+          testPayback = m;
+          break;
+        }
+      }
+      
+      // Сколько месяцев хватит бюджета при этом CPA
+      // Spend/month остаётся как текущий, но покупок будет больше/меньше
+      const testRunway = Math.floor(b / spendPerMonth);
+      
+      // Хватит ли до Payback?
+      const isCurrent = bIdx === closestBudgetIdx && cIdx === closestCPAIdx;
+      const budgetEnough = testPayback !== null && testRunway >= testPayback;
+      
+      let cellClass;
+      let cellText;
+      
+      if (testPayback === null) {
+        // Payback невозможен
+        cellClass = 'bad';
+        cellText = '>18';
+      } else if (budgetEnough) {
+        // Хватит до Payback
+        cellClass = 'good';
+        cellText = testPayback === 0 ? '✓ D0' : `✓ M${testPayback}`;
+      } else {
+        // Не хватит
+        cellClass = testPayback <= 12 ? 'warn' : 'bad';
+        cellText = testPayback === 0 ? '✗ D0' : `✗ M${testPayback}`;
+      }
+      
+      if (isCurrent) cellClass += ' current';
+      
+      sens2HTML += `<div class="sens-cell ${cellClass}">${cellText}</div>`;
+    });
+  });
+  
+  document.getElementById('sens-budget-cpa').style.gridTemplateColumns = `auto repeat(${cpaSteps2.length}, 1fr)`;
+  document.getElementById('sens-budget-cpa').innerHTML = sens2HTML;
+  
+  // Matrix 3: Payback при CPA × Paywall Conv
+  const convSteps = [-30, -20, -10, 0, 10, 20, 30]; // % изменение конверсии
+  
+  let sens3HTML = '<div class="sens-cell header"></div>';
+  convSteps.forEach(c => {
+    sens3HTML += `<div class="sens-cell header">${c >= 0 ? '+' : ''}${c}%</div>`;
+  });
+  
+  cpaSteps.forEach((cpa, cpaIdx) => {
+    sens3HTML += `<div class="sens-cell row-header">CPA ${cpa >= 0 ? '+' : ''}${cpa}%</div>`;
+    convSteps.forEach((conv, convIdx) => {
+      // Если Conv растёт, CPA падает (обратная зависимость при фиксированном CPI)
+      // Но мы моделируем независимо: CPA меняется от трафика, Conv от продукта
+      // Итоговый эффект: новый eCPA = базовый eCPA * (1 + cpa%) * (baseConv / newConv)
+      // Упрощаем: считаем что Conv влияет на "качество" трафика
+      
+      const testCPA = eCPA * (1 + cpa / 100);
+      // При росте Conv на X%, эффективный CPA снижается
+      // newEffectiveCPA = testCPA / (1 + conv/100)
+      const convMultiplier = 1 + conv / 100;
+      const effectiveCPA = testCPA / convMultiplier;
+      
+      // Ищем Payback при этом effective CPA
+      let testPayback = null;
+      for (let m = 0; m <= 18; m++) {
+        if (totalLTV(m) >= effectiveCPA) {
+          testPayback = m;
+          break;
+        }
+      }
+      
+      const isCurrent = cpa === 0 && conv === 0;
+      let cellClass;
+      if (testPayback === null) cellClass = 'bad';
+      else if (testPayback <= 3) cellClass = 'good';
+      else if (testPayback <= 6) cellClass = 'ok';
+      else if (testPayback <= 12) cellClass = 'warn';
+      else cellClass = 'bad';
+      if (isCurrent) cellClass += ' current';
+      
+      sens3HTML += `<div class="sens-cell ${cellClass}">${testPayback !== null ? (testPayback === 0 ? 'D0' : 'M' + testPayback) : '>18'}</div>`;
+    });
+  });
+  
+  document.getElementById('sens-cpa-conv').style.gridTemplateColumns = `auto repeat(${convSteps.length}, 1fr)`;
+  document.getElementById('sens-cpa-conv').innerHTML = sens3HTML;
+  
+  // === SUMMARY ===
+  // Определяем статус (только факты, без рекомендаций по скейлингу)
+  let summaryStatus, summaryIcon, summaryTitle, summarySubtitle;
+  
+  if (paybackMonth === null) {
+    // Payback невозможен
+    summaryStatus = 'critical';
+    summaryIcon = '🚨';
+    summaryTitle = 'Юнит-экономика не сходится';
+    summarySubtitle = `LTV18 (${fmt(ltv18,0)}) < eCPA (${fmt(eCPA,0)})`;
+  } else if (paybackMonth > monthsOfBudget) {
+    // Бюджета не хватит до Payback
+    summaryStatus = 'danger';
+    summaryIcon = '🚨';
+    summaryTitle = 'Бюджета не хватит до окупаемости';
+    summarySubtitle = `Payback ${paybackStr}, бюджета хватит на ${monthsOfBudget} мес`;
+  } else if (paybackMonth <= 3) {
+    // Быстрая окупаемость
+    summaryStatus = 'great';
+    summaryIcon = '✅';
+    summaryTitle = 'Юнит-экономика сходится';
+    summarySubtitle = `Окупаемость ${paybackStr}, ROAS D0 ${(roasD0*100).toFixed(0)}%`;
+  } else if (paybackMonth <= 6) {
+    // Нормальная окупаемость
+    summaryStatus = 'good';
+    summaryIcon = '✅';
+    summaryTitle = 'Юнит-экономика сходится';
+    summarySubtitle = `Окупаемость ${paybackStr}, бюджета хватит`;
+  } else {
+    // Долгая окупаемость но сходится
+    summaryStatus = 'warning';
+    summaryIcon = '⚠️';
+    summaryTitle = 'Юнит-экономика сходится, но окупаемость долгая';
+    summarySubtitle = `Окупаемость ${paybackStr}`;
+  }
+  
+  const showFixBlock = summaryStatus === 'critical' || summaryStatus === 'danger';
+  
+  document.getElementById('summary-block').innerHTML = `
+    <div class="summary-header">
+      <div class="summary-icon">${summaryIcon}</div>
+      <div>
+        <div class="summary-title">${summaryTitle}</div>
+        <div class="summary-subtitle">${summarySubtitle}</div>
+      </div>
+    </div>
+    <div class="summary-grid">
+      <div class="summary-section">
+        <div class="summary-section-title">📊 При текущих параметрах</div>
+        <ul class="summary-list">
+          <li><span>Бюджет ${fmtK(totalBudget)} хватит на</span><strong>${monthsOfBudget} мес</strong></li>
+          <li><span>Payback наступит</span><strong>${paybackStr}</strong></li>
+          <li><span>Запас после Payback</span><strong>${paybackBeforeBudgetEnds ? (monthsOfBudget - paybackMonth) + ' мес ✓' : '—'}</strong></li>
+          <li><span>P&L к концу бюджета</span><strong class="${profitAtPayback >= 0 ? '' : 'negative'}">${profitAtPayback >= 0 ? '+' : ''}${fmtK(profitAtPayback)}</strong></li>
+          <li><span>LTV/CAC ratio</span><strong>${(ltv18 / eCPA).toFixed(2)}×</strong></li>
+        </ul>
+      </div>
+      <div class="summary-section">
+        <div class="summary-section-title">⚠️ Риски (что если метрики ухудшатся)</div>
+        <ul class="summary-list">
+          <li>
+            <span>CPA +30%</span>
+            <span class="tag ${calcPaybackAt(30, 0) !== null && calcPaybackAt(30, 0) <= monthsOfBudget ? 'green' : 'red'}">
+              ${calcPaybackAt(30, 0) !== null ? 'PB M' + calcPaybackAt(30, 0) : 'не сойдётся'}
+            </span>
+          </li>
+          <li>
+            <span>Churn +30%</span>
+            <span class="tag ${calcPaybackAt(0, 30) !== null && calcPaybackAt(0, 30) <= monthsOfBudget ? 'green' : 'red'}">
+              ${calcPaybackAt(0, 30) !== null ? 'PB M' + calcPaybackAt(0, 30) : 'не сойдётся'}
+            </span>
+          </li>
+          <li>
+            <span>CPA +30% И Churn +30%</span>
+            <span class="tag ${calcPaybackAt(30, 30) !== null && calcPaybackAt(30, 30) <= monthsOfBudget ? 'green' : 'red'}">
+              ${calcPaybackAt(30, 30) !== null ? 'PB M' + calcPaybackAt(30, 30) : 'не сойдётся'}
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+// Initial render and calculation
+renderUpsells();
+calc();
+</script>
+</body>
+</html>
