@@ -1005,18 +1005,71 @@ input[type=number]:focus {
 <!-- Pricing -->
 <div class="section">
   <div class="section-title">💵 <span id="t-pricing">Цены подписок</span></div>
-  <div class="grid3">
-    <div class="field-num">
-      <label>Yearly, $</label>
-      <input type="number" id="price-yearly" value="49.99" min="0.99" max="499" step="0.01" oninput="calc()">
+  
+  <div class="intro-toggle" style="margin-bottom: 14px;">
+    <label class="toggle-wrap" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+      <div class="toggle">
+        <input type="checkbox" id="tog-intro" checked onchange="toggleIntroPricing()">
+        <div class="toggle-slider"></div>
+      </div>
+      <span style="font-size: 12px; color: var(--text2);">Intro pricing (первый платёж со скидкой)</span>
+    </label>
+  </div>
+  
+  <div id="pricing-standard" style="display: none;">
+    <div class="grid3">
+      <div class="field-num">
+        <label>Yearly, $</label>
+        <input type="number" id="price-yearly" value="89" min="0.99" max="499" step="0.01" oninput="syncPricing('yearly');calc()">
+      </div>
+      <div class="field-num">
+        <label>Monthly, $</label>
+        <input type="number" id="price-monthly" value="30" min="0.99" max="99" step="0.01" oninput="syncPricing('monthly');calc()">
+      </div>
+      <div class="field-num">
+        <label>Weekly, $</label>
+        <input type="number" id="price-weekly" value="9.99" min="0.99" max="49" step="0.01" oninput="syncPricing('weekly');calc()">
+      </div>
     </div>
-    <div class="field-num">
-      <label>Monthly, $</label>
-      <input type="number" id="price-monthly" value="12.99" min="0.99" max="99" step="0.01" oninput="calc()">
+  </div>
+  
+  <div id="pricing-intro">
+    <div style="background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+      <div style="font-size: 11px; font-weight: 600; color: var(--green); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">🏷️ First payment (со скидкой)</div>
+      <div class="grid3">
+        <div class="field-num" style="margin-bottom: 0;">
+          <label style="font-size: 11px;">Yearly</label>
+          <input type="number" id="price-yearly-first" value="44" min="0.99" max="499" step="0.01" oninput="calc()" style="background: white;">
+        </div>
+        <div class="field-num" style="margin-bottom: 0;">
+          <label style="font-size: 11px;">Monthly</label>
+          <input type="number" id="price-monthly-first" value="15" min="0.99" max="99" step="0.01" oninput="calc()" style="background: white;">
+        </div>
+        <div class="field-num" style="margin-bottom: 0;">
+          <label style="font-size: 11px;">Weekly</label>
+          <input type="number" id="price-weekly-first" value="4.99" min="0.99" max="49" step="0.01" oninput="calc()" style="background: white;">
+        </div>
+      </div>
     </div>
-    <div class="field-num">
-      <label>Weekly, $</label>
-      <input type="number" id="price-weekly" value="6.99" min="0.99" max="49" step="0.01" oninput="calc()">
+    <div style="text-align: center; margin: -5px 0; position: relative; z-index: 1;">
+      <span style="background: var(--bg); padding: 0 8px; font-size: 16px;">↓</span>
+    </div>
+    <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: -5px;">
+      <div style="font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">🔄 Rebill (полная цена)</div>
+      <div class="grid3">
+        <div class="field-num" style="margin-bottom: 0;">
+          <label style="font-size: 11px;">Yearly</label>
+          <input type="number" id="price-yearly-full" value="89" min="0.99" max="499" step="0.01" oninput="calc()">
+        </div>
+        <div class="field-num" style="margin-bottom: 0;">
+          <label style="font-size: 11px;">Monthly</label>
+          <input type="number" id="price-monthly-full" value="30" min="0.99" max="99" step="0.01" oninput="calc()">
+        </div>
+        <div class="field-num" style="margin-bottom: 0;">
+          <label style="font-size: 11px;">Weekly</label>
+          <input type="number" id="price-weekly-full" value="9.99" min="0.99" max="49" step="0.01" oninput="calc()">
+        </div>
+      </div>
     </div>
   </div>
   <div class="grid3" style="margin-top:14px;">
@@ -1344,6 +1397,7 @@ input[type=number]:focus {
 const S = { 
   lang: 'ru',
   channels: { web: true, app: true },
+  introPricing: true,
   upsells: {
     d0: { 
       enabled: true, 
@@ -1489,6 +1543,29 @@ function toggleChannel(ch) {
   calc();
 }
 
+// ==================== INTRO PRICING ====================
+function toggleIntroPricing() {
+  const checked = document.getElementById('tog-intro').checked;
+  S.introPricing = checked;
+  document.getElementById('pricing-intro').style.display = checked ? 'block' : 'none';
+  document.getElementById('pricing-standard').style.display = checked ? 'none' : 'block';
+  
+  if (!checked) {
+    // Sync standard prices to full prices
+    document.getElementById('price-yearly').value = gv('price-yearly-full');
+    document.getElementById('price-monthly').value = gv('price-monthly-full');
+    document.getElementById('price-weekly').value = gv('price-weekly-full');
+  }
+  calc();
+}
+
+function syncPricing(plan) {
+  // When standard pricing changes, update both first and full to same value
+  const val = gv('price-' + plan);
+  document.getElementById('price-' + plan + '-first').value = val;
+  document.getElementById('price-' + plan + '-full').value = val;
+}
+
 // ==================== UPSELLS ====================
 function toggleUpsell(type) {
   const checked = document.getElementById('tog-' + type).checked;
@@ -1548,9 +1625,22 @@ function calc() {
   // === INPUTS ===
   const totalBudget = gv('total-budget');
   
-  const priceY = gv('price-yearly');
-  const priceM = gv('price-monthly');
-  const priceW = gv('price-weekly');
+  // Pricing - first and full (intro vs rebill)
+  let priceYFirst, priceYFull, priceMFirst, priceMFull, priceWFirst, priceWFull;
+  
+  if (S.introPricing) {
+    priceYFirst = gv('price-yearly-first');
+    priceYFull = gv('price-yearly-full');
+    priceMFirst = gv('price-monthly-first');
+    priceMFull = gv('price-monthly-full');
+    priceWFirst = gv('price-weekly-first');
+    priceWFull = gv('price-weekly-full');
+  } else {
+    // Standard pricing - first = full
+    priceYFirst = priceYFull = gv('price-yearly');
+    priceMFirst = priceMFull = gv('price-monthly');
+    priceWFirst = priceWFull = gv('price-weekly');
+  }
   
   const shareY = gv('share-yearly') / 100;
   const shareM = gv('share-monthly') / 100;
@@ -1582,11 +1672,18 @@ function calc() {
   // Net multiplier (после комиссии стора и рефандов)
   const netMult = (1 - storeFee) * (1 - refundRate);
   
-  // ARPPU Gross (средний чек подписки)
-  const arppuGross = priceY * shareY + priceM * shareM + priceW * shareW;
+  // ARPPU Gross D0 (первый платёж - со скидкой если intro pricing)
+  const arppuGrossD0 = priceYFirst * shareY + priceMFirst * shareM + priceWFirst * shareW;
   
-  // ARPPU Net (после вычетов)
-  const arppuNet = arppuGross * netMult;
+  // ARPPU Gross Full (для ребиллов)
+  const arppuGrossFull = priceYFull * shareY + priceMFull * shareM + priceWFull * shareW;
+  
+  // ARPPU Net D0 (после вычетов)
+  const arppuNetD0 = arppuGrossD0 * netMult;
+  
+  // Legacy aliases for compatibility
+  const arppuGross = arppuGrossD0;
+  const arppuNet = arppuNetD0;
   
   // === D0 UPSELLS ===
   let d0UpsellRev = 0;
@@ -1597,7 +1694,7 @@ function calc() {
   }
   
   // ARPPU с D0 апселами
-  const arppuWithD0 = arppuNet + d0UpsellRev;
+  const arppuWithD0 = arppuNetD0 + d0UpsellRev;
   
   // === BLENDED CPA (только из каналов) ===
   // Нормализуем доли каналов
@@ -1625,24 +1722,24 @@ function calc() {
   
   // === LTV FUNCTIONS ===
   
-  // LTV Gross (сколько заплатит юзер за N месяцев)
+  // LTV Gross (сколько заплатит юзер за N месяцев) - с учётом intro pricing
   function grossLTV(months) {
-    // Yearly: платит сразу за год, renewal на 12м месяце
-    let yearly = priceY;
-    if (months >= 12) yearly += priceY * renewal;
-    if (months >= 24) yearly += priceY * renewal * renewal;
+    // Yearly: первый год по intro price, renewal по full price
+    let yearly = priceYFirst;
+    if (months >= 12) yearly += priceYFull * renewal;
+    if (months >= 24) yearly += priceYFull * renewal * renewal;
     
-    // Monthly: платит каждый месяц с churn
-    let monthly = 0;
-    for (let i = 0; i < months; i++) {
-      monthly += priceM * Math.pow(1 - churnM, i);
+    // Monthly: первый месяц по intro price, дальше full price с churn
+    let monthly = priceMFirst; // месяц 0
+    for (let i = 1; i < months; i++) {
+      monthly += priceMFull * Math.pow(1 - churnM, i);
     }
     
-    // Weekly: платит каждую неделю с churn
-    let weekly = 0;
+    // Weekly: первая неделя по intro price, дальше full price с churn
+    let weekly = priceWFirst; // неделя 0
     const weeks = months * 4.33;
-    for (let i = 0; i < Math.floor(weeks); i++) {
-      weekly += priceW * Math.pow(1 - churnW, i);
+    for (let i = 1; i < Math.floor(weeks); i++) {
+      weekly += priceWFull * Math.pow(1 - churnW, i);
     }
     
     return shareY * yearly + shareM * monthly + shareW * weekly;
@@ -1765,16 +1862,16 @@ function calc() {
     const testChurnM = c;
     const testChurnW = churnW * (c / safeChurnM); // пропорционально меняем weekly
     
-    // Gross LTV
-    let yearly = priceY + priceY * renewal; // 13 мес включает renewal
-    let monthly = 0;
-    for (let i = 0; i < 13; i++) {
-      monthly += priceM * Math.pow(1 - testChurnM, i);
+    // Gross LTV с intro pricing
+    let yearly = priceYFirst + priceYFull * renewal; // первый год intro, renewal full
+    let monthly = priceMFirst; // месяц 0 по intro
+    for (let i = 1; i < 13; i++) {
+      monthly += priceMFull * Math.pow(1 - testChurnM, i);
     }
-    let weekly = 0;
+    let weekly = priceWFirst; // неделя 0 по intro
     const weeks = 13 * 4.33;
-    for (let i = 0; i < Math.floor(weeks); i++) {
-      weekly += priceW * Math.pow(1 - testChurnW, i);
+    for (let i = 1; i < Math.floor(weeks); i++) {
+      weekly += priceWFull * Math.pow(1 - testChurnW, i);
     }
     const grossLTV = shareY * yearly + shareM * monthly + shareW * weekly;
     
@@ -1820,6 +1917,13 @@ function calc() {
   }
   const churnOk = churnM <= maxChurnM;
   const churnMargin = ((maxChurnM / churnM) - 1) * 100;
+  
+  // Min ARPPU for Payback 13mo - минимальный первый платёж для окупаемости
+  // LTV from rebills only (без первого платежа)
+  const ltvFromRebillsOnly = ltv13 - arppuWithD0;
+  const minArppuForPayback = Math.max(0, eCPA - ltvFromRebillsOnly);
+  const arppuForPaybackOk = arppuWithD0 >= minArppuForPayback;
+  const arppuForPaybackMargin = minArppuForPayback > 0 ? ((arppuWithD0 / minArppuForPayback) - 1) * 100 : 100;
   
   // === RENDER KPI SUMMARY ===
   const paybackStr = paybackMonth !== null ? (paybackMonth === 0 ? 'D0' : 'M' + paybackMonth) : '>M13';
@@ -1909,12 +2013,21 @@ function calc() {
     </div>
     <div class="target-row">
       <div class="target-name">
-        Min ARPPU
+        Min ARPPU D0
         <small>Для ROAS D0 ≥ 0.7×</small>
       </div>
       <div class="target-val">≥ ${fmt(minARPPU, 2)}</div>
       <div class="target-val muted">${fmt(arppuWithD0, 2)}</div>
       <div class="target-delta ${deltaClass(arppuOk, arppuMargin)}">${arppuOk ? '✓ ' : '✗ '}${deltaStr(arppuMargin)}</div>
+    </div>
+    <div class="target-row">
+      <div class="target-name">
+        Min ARPPU for Payback
+        <small>Минимум для окупаемости за 13 мес</small>
+      </div>
+      <div class="target-val">≥ ${fmt(minArppuForPayback, 2)}</div>
+      <div class="target-val muted">${fmt(arppuWithD0, 2)}</div>
+      <div class="target-delta ${deltaClass(arppuForPaybackOk, arppuForPaybackMargin)}">${arppuForPaybackOk ? '✓ ' : '✗ '}${deltaStr(arppuForPaybackMargin)}</div>
     </div>
     <div class="target-row">
       <div class="target-name">
@@ -2097,16 +2210,35 @@ function calc() {
     if (cumulBE === null && cumulPL >= 0) cumulBE = T;
   }
   
-  const cashRequired = Math.max(totalBudget, Math.abs(maxDeficit) + spendPerMonth * 3);
+  // Cash Required = сколько реально нужно денег до Cumulative BE
+  // Формула: spend до BE месяца + запас на покрытие cash gap
+  const monthsToBE = cumulBE || 24;
+  const minCashForBE = (monthsToBE * spendPerMonth);
+  
+  // Реальный минимум = либо накопленный spend до BE, либо покрытие max deficit + 2 мес запаса
+  const cashRequired = Math.max(minCashForBE, Math.abs(maxDeficit) + spendPerMonth * 2);
   
   // Проверка: хватит ли заданного бюджета
-  const budgetSufficient = totalBudget >= cashRequired * 0.9; // 10% tolerance
-  
+  const budgetSufficient = totalBudget >= cashRequired;
+  const budgetDiff = totalBudget - cashRequired;
+
   // Render BE Grid
   const monthlyBEClass = monthlyBE && monthlyBE <= 6 ? 'highlight' : monthlyBE && monthlyBE <= 12 ? 'warning' : 'danger';
   const cumulBEClass = cumulBE && cumulBE <= 12 ? 'highlight' : cumulBE && cumulBE <= 13 ? 'warning' : 'danger';
-  const cashClass = budgetSufficient ? '' : 'warning';
+  const cashClass = budgetSufficient ? 'highlight' : 'danger';
   
+  // Подпись для Cash Required
+  let cashSub;
+  if (budgetSufficient) {
+    if (budgetDiff > spendPerMonth * 2) {
+      cashSub = `✓ запас +${fmtK(budgetDiff)}`;
+    } else {
+      cashSub = '✓ бюджета хватит';
+    }
+  } else {
+    cashSub = `⚠ нужно ещё ${fmtK(Math.abs(budgetDiff))}`;
+  }
+
   document.getElementById('be-grid').innerHTML = `
     <div class="be-card ${monthlyBEClass}">
       <div class="be-label">Monthly BE</div>
@@ -2126,7 +2258,7 @@ function calc() {
     <div class="be-card ${cashClass}">
       <div class="be-label">Cash Required</div>
       <div class="be-value">${fmtK(cashRequired)}</div>
-      <div class="be-sub">${budgetSufficient ? '✓ бюджета хватит' : '⚠ нужно больше'}</div>
+      <div class="be-sub">${cashSub}</div>
     </div>
   `;
   
@@ -2185,19 +2317,19 @@ function calc() {
     
     // Полный расчёт LTV с тестовыми параметрами (как в основной функции)
     function testTotalLTV(months) {
-      // Gross LTV
-      let yearly = priceY;
-      if (months >= 12) yearly += priceY * renewal;
+      // Gross LTV с intro pricing
+      let yearly = priceYFirst;
+      if (months >= 12) yearly += priceYFull * renewal;
       
-      let monthly = 0;
-      for (let i = 0; i < months; i++) {
-        monthly += priceM * Math.pow(1 - testChurnM, i);
+      let monthly = priceMFirst; // месяц 0 по intro
+      for (let i = 1; i < months; i++) {
+        monthly += priceMFull * Math.pow(1 - testChurnM, i);
       }
       
-      let weekly = 0;
+      let weekly = priceWFirst; // неделя 0 по intro
       const weeks = months * 4.33;
-      for (let i = 0; i < Math.floor(weeks); i++) {
-        weekly += priceW * Math.pow(1 - testChurnW, i);
+      for (let i = 1; i < Math.floor(weeks); i++) {
+        weekly += priceWFull * Math.pow(1 - testChurnW, i);
       }
       
       const grossLTV = shareY * yearly + shareM * monthly + shareW * weekly;
