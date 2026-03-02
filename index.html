@@ -2229,13 +2229,14 @@ function calc() {
     if (cumulBE === null && cumulPL >= 0) cumulBE = T;
   }
   
-  // Cash Required = сколько реально нужно денег до Cumulative BE
-  // Формула: spend до BE месяца + запас на покрытие cash gap
-  const monthsToBE = cumulBE || 24;
-  const minCashForBE = (monthsToBE * spendPerMonth);
+  // Cash Required = сколько нужно денег до операционной самоокупаемости
+  // Формула: spend до Monthly BE + покрытие cash gap (с буфером 50%)
+  // После Monthly BE бизнес сам себя кормит — revenue >= spend
+  const monthsToMonthlyBE = monthlyBE || 24;
+  const spendToMonthlyBE = monthsToMonthlyBE * spendPerMonth;
+  const cashGapBuffer = Math.abs(maxDeficit) * 0.5; // 50% буфер на cash gap
   
-  // Реальный минимум = либо накопленный spend до BE, либо покрытие max deficit + 2 мес запаса
-  const cashRequired = Math.max(minCashForBE, Math.abs(maxDeficit) + spendPerMonth * 2);
+  const cashRequired = spendToMonthlyBE + cashGapBuffer;
   
   // Проверка: хватит ли заданного бюджета
   const budgetSufficient = totalBudget >= cashRequired;
@@ -2262,7 +2263,7 @@ function calc() {
     <div class="be-card ${monthlyBEClass}">
       <div class="be-label">Monthly BE</div>
       <div class="be-value">${monthlyBE ? 'M' + monthlyBE : '>M24'}</div>
-      <div class="be-sub">месяц выхода в 0</div>
+      <div class="be-sub">операционная прибыльность</div>
     </div>
     <div class="be-card ${cumulBEClass}">
       <div class="be-label">Cumulative BE</div>
