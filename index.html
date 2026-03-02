@@ -2045,24 +2045,78 @@ function calc() {
   const fixBlock = document.getElementById('fix-block');
   
   if (needsFix) {
-    const isCritical = paybackMonth === null;
+    const isCritical = paybackMonth === null; // LTV13 < eCPA
     
-    // Вариант A: Нужный CPA
-    const neededCPA = ltv13 * 0.85; // 15% margin
+    // Вариант A: Нужный CPA (должен быть <= LTV13)
+    const neededCPA = ltv13 * 0.95; // 5% margin для надёжности
     const cpaDelta = ((neededCPA / eCPA) - 1) * 100;
     
-    // Вариант B: Нужный бюджет
-    const neededMonths = paybackMonth ? paybackMonth + 2 : 12;
-    const neededBudget = neededMonths * budgetPerDay * 30;
-    const budgetDelta = ((neededBudget / totalBudget) - 1) * 100;
+    // Вариант B: Нужный бюджет (только если payback возможен!)
+    const neededMonths = paybackMonth ? paybackMonth + 2 : null;
+    const neededBudget = neededMonths ? neededMonths * spendPerMonth : null;
+    const budgetDelta = neededBudget ? ((neededBudget / totalBudget) - 1) * 100 : 0;
     
-    // Вариант C: Нужный churn
-    const neededChurn = Math.max(5, churnM * 100 - 8);
-    const improvedLTV = ltv13 * 1.25; // примерная оценка
+    // Вариант C: Нужный churn для LTV13 >= eCPA
+    // Используем уже рассчитанный maxChurnM
+    const neededChurnPct = (maxChurnM * 100).toFixed(0);
+    // Оценка LTV при улучшенном churn
+    const churnImprovement = churnM - maxChurnM;
+    const estimatedLTVImproved = ltv13 * (1 + churnImprovement * 2); // примерная оценка
     
-    // Вариант D: Нужный ARPPU
-    const neededARPPU = eCPA * 0.85;
+    // Вариант D: Нужный ARPPU для LTV13 >= eCPA
+    // Если LTV13 < eCPA, нужно добавить разницу к ARPPU
+    const ltvGap = eCPA - ltv13;
+    const neededARPPU = arppuWithD0 + ltvGap * 1.1; // +10% запас
     const arppuDelta = ((neededARPPU / arppuWithD0) - 1) * 100;
+    
+    // Генерируем HTML для блоков
+    let optionsHTML = `
+      <div class="fix-option">
+        <div class="fix-option-header">
+          <div class="fix-option-letter">A</div>
+          <div class="fix-option-title">Снизить CPA</div>
+        </div>
+        <div class="fix-option-row"><span>Сейчас</span><span>${fmt(eCPA, 0)}</span></div>
+        <div class="fix-option-row"><span>Нужно</span><span>${fmt(neededCPA, 0)}</span></div>
+        <div class="fix-option-row"><span>Изменение</span><span class="change">${cpaDelta.toFixed(0)}%</span></div>
+      </div>
+    `;
+    
+    // Блок B показываем ТОЛЬКО если payback возможен (просто бюджета не хватает)
+    if (!isCritical && neededBudget) {
+      optionsHTML += `
+        <div class="fix-option">
+          <div class="fix-option-header">
+            <div class="fix-option-letter">B</div>
+            <div class="fix-option-title">Увеличить бюджет</div>
+          </div>
+          <div class="fix-option-row"><span>Сейчас</span><span>${fmtK(totalBudget)}</span></div>
+          <div class="fix-option-row"><span>Нужно</span><span>${fmtK(neededBudget)}</span></div>
+          <div class="fix-option-row"><span>Изменение</span><span class="change positive">+${budgetDelta.toFixed(0)}%</span></div>
+        </div>
+      `;
+    }
+    
+    optionsHTML += `
+      <div class="fix-option">
+        <div class="fix-option-header">
+          <div class="fix-option-letter">${!isCritical && neededBudget ? 'C' : 'B'}</div>
+          <div class="fix-option-title">Улучшить Retention</div>
+        </div>
+        <div class="fix-option-row"><span>Сейчас Churn</span><span>${(churnM * 100).toFixed(0)}%</span></div>
+        <div class="fix-option-row"><span>Нужно Churn</span><span>≤${neededChurnPct}%</span></div>
+        <div class="fix-option-row"><span>LTV вырастет до</span><span class="change positive">~${fmt(Math.max(estimatedLTVImproved, eCPA * 1.05), 0)}</span></div>
+      </div>
+      <div class="fix-option">
+        <div class="fix-option-header">
+          <div class="fix-option-letter">${!isCritical && neededBudget ? 'D' : 'C'}</div>
+          <div class="fix-option-title">Поднять ARPPU</div>
+        </div>
+        <div class="fix-option-row"><span>Сейчас</span><span>${fmt(arppuWithD0, 2)}</span></div>
+        <div class="fix-option-row"><span>Нужно</span><span>${fmt(neededARPPU, 2)}</span></div>
+        <div class="fix-option-row"><span>Через цены/апселы</span><span class="change positive">+${arppuDelta.toFixed(0)}%</span></div>
+      </div>
+    `;
     
     fixBlock.innerHTML = `
       <div class="fix-block ${isCritical ? 'critical' : ''}">
@@ -2079,42 +2133,7 @@ function calc() {
           </div>
         </div>
         <div class="fix-options">
-          <div class="fix-option">
-            <div class="fix-option-header">
-              <div class="fix-option-letter">A</div>
-              <div class="fix-option-title">Снизить CPA</div>
-            </div>
-            <div class="fix-option-row"><span>Сейчас</span><span>${fmt(eCPA, 0)}</span></div>
-            <div class="fix-option-row"><span>Нужно</span><span>${fmt(neededCPA, 0)}</span></div>
-            <div class="fix-option-row"><span>Изменение</span><span class="change">${cpaDelta.toFixed(0)}%</span></div>
-          </div>
-          <div class="fix-option">
-            <div class="fix-option-header">
-              <div class="fix-option-letter">B</div>
-              <div class="fix-option-title">Увеличить бюджет</div>
-            </div>
-            <div class="fix-option-row"><span>Сейчас</span><span>${fmtK(totalBudget)}</span></div>
-            <div class="fix-option-row"><span>Нужно</span><span>${fmtK(neededBudget)}</span></div>
-            <div class="fix-option-row"><span>Изменение</span><span class="change positive">+${budgetDelta.toFixed(0)}%</span></div>
-          </div>
-          <div class="fix-option">
-            <div class="fix-option-header">
-              <div class="fix-option-letter">C</div>
-              <div class="fix-option-title">Улучшить Retention</div>
-            </div>
-            <div class="fix-option-row"><span>Сейчас Churn</span><span>${(churnM * 100).toFixed(0)}%</span></div>
-            <div class="fix-option-row"><span>Нужно Churn</span><span>≤${neededChurn.toFixed(0)}%</span></div>
-            <div class="fix-option-row"><span>LTV вырастет до</span><span class="change positive">~${fmt(improvedLTV, 0)}</span></div>
-          </div>
-          <div class="fix-option">
-            <div class="fix-option-header">
-              <div class="fix-option-letter">D</div>
-              <div class="fix-option-title">Поднять ARPPU</div>
-            </div>
-            <div class="fix-option-row"><span>Сейчас</span><span>${fmt(arppuWithD0, 2)}</span></div>
-            <div class="fix-option-row"><span>Нужно</span><span>${fmt(neededARPPU, 2)}</span></div>
-            <div class="fix-option-row"><span>Через цены/апселы</span><span class="change positive">+${Math.abs(arppuDelta).toFixed(0)}%</span></div>
-          </div>
+          ${optionsHTML}
         </div>
       </div>
     `;
